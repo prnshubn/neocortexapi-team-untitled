@@ -27,7 +27,7 @@ namespace NeoCortexApi.Experiments
     /// <br />
     /// <para>
     ///     University: Frankfurt University of Applied Sciences<br />
-    ///     Degree: Master's in Information Technology<br />
+    ///     Degree: Master of Engineering in Information Technology<br />
     ///     Year: 2024-2025<br />
     ///     Team: Untitled<br />
     ///     Contributors:
