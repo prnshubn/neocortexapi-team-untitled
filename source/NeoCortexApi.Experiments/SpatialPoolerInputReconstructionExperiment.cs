@@ -56,11 +56,14 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
             }
             
         }
-
+    public class InputParams
+    {
+        public int width { get; set; }
+        public double maxIndex { get; set; }
+        public double radius { get; set; }
+        public double compareNumber { get; set; }
 
     }
-public class InputParams
-{
-    
-        
+
+
 }
