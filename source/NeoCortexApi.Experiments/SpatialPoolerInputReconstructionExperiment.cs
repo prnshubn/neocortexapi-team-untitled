@@ -21,6 +21,13 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
             // Find the maximum and minimum values
             int maxValue = scalarInputs.Max();
             int minValue = scalarInputs.Min();
+            InputParams inputs = new();
+            inputs.width=21;
+            inputs.maxIndex=5.0;
+            inputs.radius=-1.0;
+            inputs.compareNumber=1.0;
+
+            ProcessTestCase(scalarInputs, inputs, minValue, maxValue);
         } 
         
         static void ProcessTestCase(int[] scalarInputs, InputParams inputs, double minValue, double maxValue)
@@ -29,7 +36,7 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
             {
                // { "W", inputs.width},
                 { "N", 1024},
-               // { "Radius", inputs.radius},
+                { "Radius", inputs.radius},
                 { "MinVal", minValue},
                 { "MaxVal", maxValue},
                 { "Periodic", false},
