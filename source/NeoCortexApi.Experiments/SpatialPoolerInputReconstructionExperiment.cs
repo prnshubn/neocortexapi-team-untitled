@@ -34,7 +34,7 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
         {
             ScalarEncoder encoder = new (new Dictionary<string, object>()
             {
-               // { "W", inputs.width},
+                { "W", inputs.width},
                 { "N", 1024},
                 { "Radius", inputs.radius},
                 { "MinVal", minValue},
