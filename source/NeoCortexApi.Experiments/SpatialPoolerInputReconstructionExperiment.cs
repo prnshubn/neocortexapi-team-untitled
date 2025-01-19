@@ -33,9 +33,25 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
                 { "MinVal", minValue},
                 { "MaxVal", maxValue},
                 { "Periodic", false},
-                { "Name", "scalar"},
+                { "Name", "scalar"}, 
                 { "ClipInput", false},
             });
+            List<int[]> sdrList = new ();
+            
+            foreach (var i in scalarInputs)
+            {
+                var result = encoder.Encode(i);
+                sdrList.Add(result);
+                Console.WriteLine($"Input: {i} -> SDR: {string.Join("", result)}");
+            }
+
+            // Initialize the SpatialPooler and its connections
+            // SpatialPooler sp = new ();
+            // Connections connections = new ();
+            // sp.Init(connections);
+            //
+            // int[] sdr2 = sp.Compute(sdrList[0], false);
+            // Console.WriteLine($"Input: {1} -> SDR: {string.Join("", sdr2)}");
 
             }
             
