@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
 using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 
-namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
+namespace NeoCortexApi.Experiments
 {
     /// <summary>
-    /// Input -> Scalar Encoder -> Spatial Pooler -> Classifier -> Output
+    /// Input -> Scalar Encoder -> Spatial Pooler -> HTM Classifier -> Output
     /// </summary>
     [TestClass]
     public class SpatialPoolerInputReconstructionExperiment
@@ -61,24 +63,22 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
                 { "N", inputBits },
                 { "Radius", -1.0 },
                 { "MinVal", 0.0 },
+                { "MaxVal", max },
                 { "Periodic", false },
                 { "Name", "scalar" },
-                { "ClipInput", false },
-                { "MaxVal", max }
+                { "ClipInput", false }
             };
             
             EncoderBase encoder = new ScalarEncoder(settings);
 
             // We create here 100 random input values.
-            List<double> inputValues = new List<double>();
+            List<double> inputValues = new ();
 
             for (int i = 0; i < (int)max; i++)
             {
-                inputValues.Add((double)i);
+                inputValues.Add(i);
             }
-
-            var sp = SpatialPoolerOutput(cfg, encoder, inputValues);
-            
+            InputReconstruction(cfg, encoder, inputValues);
         }
         
         /// <summary>
@@ -88,7 +88,7 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
         /// <param name="encoder"></param>
         /// <param name="inputValues"></param>
         /// <returns>The trained version of the SP.</returns>
-        private static SpatialPooler SpatialPoolerOutput(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
+        private static void InputReconstruction(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
             // Creates the htm memory.
             var mem = new Connections(cfg);
@@ -106,7 +106,7 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
                 {
                     // Event should only be fired when entering the stable state.
                     // Ideal SP should never enter unstable state after stable state.
-                    if (isStable == false)
+                    if (!isStable)
                     {
                         Console.WriteLine($"INSTABLE STATE");
                         // This should usually not happen.
@@ -120,14 +120,11 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
                     }
                 });
 
-            // It creates the instance of Spatial Pooler Multithreaded version.
-            SpatialPooler sp = new SpatialPooler(hpa);
-            // sp = new SpatialPoolerMT(hpa);
+            // It creates the instance of Spatial Pooler
+            SpatialPooler sp = new (hpa);
 
-            // Initializes the 
-            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
-
-            // mem.TraceProximalDendritePotential(true);
+            // Initializes the  SP
+            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
             // It creates the instance of the neo-cortex layer.
             // Algorithm will be performed inside of that layer.
@@ -145,10 +142,10 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
             double[] inputs = inputValues.ToArray();
 
             // Will hold the SDR of every inputs.
-            Dictionary<double, int[]> prevActiveCols = new Dictionary<double, int[]>();
+            Dictionary<double, int[]> prevActiveCols = new ();
 
             // Will hold the similarity of SDKk and SDRk-1 fro every input.
-            Dictionary<double, double> prevSimilarity = new Dictionary<double, double>();
+            Dictionary<double, double> prevSimilarity = new ();
             
             // Initiaize start similarity to zero.
             foreach (var input in inputs)
@@ -162,18 +159,23 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
 
             int numStableCycles = 0;
 
+            // Instantiate the KNN Classifier
+            var knnClassifier = new KNeighborsClassifier<string, string>();
+            // Instantiate the HTM Classifier
+            var htmClassifier = new HtmClassifier<string, string>();
+
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
                 Console.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
-                
-                // This trains the layer on input pattern.
+
+                // This trains the layer on input
                 foreach (var input in inputs)
                 {
                     double similarity;
 
                     // Learn the input pattern.
                     // Output lyrOut is the output of the last module in the layer.
-                    var lyrOut = cortexLayer.Compute((object)input, true) as int[];
+                    var lyrOut = cortexLayer.Compute(input, true) as int[];
 
                     // This is a general way to get the SpatialPooler result from the layer.
                     var activeColumns = cortexLayer.GetResult("sp") as int[];
@@ -186,18 +188,53 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
 
                     prevActiveCols[input] = activeColumns;
                     prevSimilarity[input] = similarity;
+
+                    // Convert active columns to Cell[] for the classifier
+                    Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+
+                    // Train the KNN classifier with inputs and SDRs
+                    knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
+                    
+                    // Train the HTM classifier with inputs and SDRs
+                    htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
                 }
 
                 if (isInStableState)
-                {
                     numStableCycles++;
-                }
 
                 if (numStableCycles > 5)
                     break;
             }
 
-            return sp;
+            Console.WriteLine("Classifier training complete.");
+
+            // Reconstruct the input array and calculate similarity percentages
+            Console.WriteLine("\nReconstructing inputs and calculating similarity percentages...");
+            foreach (var input in inputValues)
+            {
+                // Get SDR for the input
+                var sdr = cortexLayer.Compute(input, false) as int[];
+                var activeColumns = cortexLayer.GetResult("sp") as int[];
+                Cell[] cells = activeColumns.Select(idx => new Cell { Index = idx }).ToArray();
+
+                // Predict using KNN and HTM classifiers
+                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
+                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
+
+                // Log and compare outputs
+                Console.WriteLine($"\nInput: {input}");
+                Console.WriteLine("KNN Classifier:");
+                foreach (var result in knnPredictions)
+                {
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity * 100:F2}%");
+                }
+
+                Console.WriteLine("HTM Classifier:");
+                foreach (var result in htmPredictions)
+                {
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity * 100:F2}%");
+                }
+            }
         }
     }
 }
