@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoCortexApi.Encoders;
+using NeoCortexApi.Entities;
 
 namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
 {
@@ -16,6 +18,9 @@ namespace NeoCortexApi.Experiments.SpatialPoolerInputReconstruction
         public void Setup()
         {
             int[] scalarInputs = { 1, 2, 3, 4, 5 };
+            // Find the maximum and minimum values
+            int maxValue = scalarInputs.Max();
+            int minValue = scalarInputs.Min();
         }
 
 
