@@ -21,23 +21,22 @@ namespace NeoCortexApi.Experiments
         [TestCategory("Experiment")]
         public void Setup()
         {
-
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
 
             double max = 5;
-            
-            // Used as a boosting parameters
-            // that ensure homeostatic plasticity effect.
+
+            // Used as a boosting parameter
+            // to ensure homeostatic plasticity effect.
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
 
-            // We will use 200 bits to represent an input vector (pattern).
+            // Use 200 bits to represent an input vector (pattern).
             int inputBits = 200;
 
-            // We will build a slice of the cortex with the given number of mini-columns
+            // Build a slice of the cortex with the given number of mini-columns
             int numColumns = 1024;
 
-            // This is a set of configuration parameters used in the experiment.
+            // Configuration parameters for the experiment.
             HtmConfig cfg = new HtmConfig(new int[] { inputBits }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
@@ -56,7 +55,7 @@ namespace NeoCortexApi.Experiments
                 StimulusThreshold = 10,
             };
 
-            // This dictionary defines a set of typical encoder parameters.
+            // Typical encoder parameters.
             Dictionary<string, object> settings = new Dictionary<string, object>()
             {
                 { "W", 21 },
@@ -68,11 +67,11 @@ namespace NeoCortexApi.Experiments
                 { "Name", "scalar" },
                 { "ClipInput", false }
             };
-            
+
             EncoderBase encoder = new ScalarEncoder(settings);
 
-            // We create here 100 random input values.
-            List<double> inputValues = new ();
+            // Create 100 random input values.
+            List<double> inputValues = new();
 
             for (int i = 0; i < (int)max; i++)
             {
@@ -80,122 +79,80 @@ namespace NeoCortexApi.Experiments
             }
             InputReconstruction(cfg, encoder, inputValues);
         }
-        
+
         /// <summary>
         /// Implements the experiment.
         /// </summary>
         /// <param name="cfg"></param>
         /// <param name="encoder"></param>
         /// <param name="inputValues"></param>
-        /// <returns>The trained version of the SP.</returns>
         private static void InputReconstruction(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
-            // Creates the htm memory.
             var mem = new Connections(cfg);
-
             bool isInStableState = false;
-            
-            // HPC extends the default Spatial Pooler algorithm.
-            // The purpose of HPC is to set the SP in the new-born stage at the begining of the learning process.
-            // In this stage the boosting is very active, but the SP behaves instable. After this stage is over
-            // (defined by the second argument) the HPC is controlling the learning process of the SP.
-            // Once the SDR generated for every input gets stable, the HPC will fire event that notifies your code
-            // that SP is stable now.
+
             HomeostaticPlasticityController hpa = new HomeostaticPlasticityController(mem, inputValues.Count * 40,
                 (isStable, numPatterns, actColAvg, seenInputs) =>
                 {
-                    // Event should only be fired when entering the stable state.
-                    // Ideal SP should never enter unstable state after stable state.
                     if (!isStable)
                     {
                         Console.WriteLine($"INSTABLE STATE");
-                        // This should usually not happen.
                         isInStableState = false;
                     }
                     else
                     {
                         Console.WriteLine($"STABLE STATE");
-                        // Here you can perform any action if required.
                         isInStableState = true;
                     }
                 });
 
-            // It creates the instance of Spatial Pooler
-            SpatialPooler sp = new (hpa);
+            SpatialPooler sp = new(hpa);
 
-            // Initializes the  SP
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
-            // It creates the instance of the neo-cortex layer.
-            // Algorithm will be performed inside of that layer.
-            CortexLayer<object, object> cortexLayer = new CortexLayer<object, object>("L1");
-
-            // Add encoder as the very first module. This model is connected to the sensory input cells
-            // that receive the input. Encoder will receive the input and forward the encoded signal
-            // to the next module.
+            CortexLayer<object, object> cortexLayer = new("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
-
-            // The next module in the layer is Spatial Pooler. This module will receive the output of the
-            // encoder.
             cortexLayer.HtmModules.Add("sp", sp);
 
             double[] inputs = inputValues.ToArray();
 
-            // Will hold the SDR of every inputs.
-            Dictionary<double, int[]> prevActiveCols = new ();
+            Dictionary<double, int[]> prevActiveCols = new();
+            Dictionary<double, double> prevSimilarity = new();
 
-            // Will hold the similarity of SDKk and SDRk-1 fro every input.
-            Dictionary<double, double> prevSimilarity = new ();
-            
-            // Initiaize start similarity to zero.
             foreach (var input in inputs)
             {
                 prevSimilarity.Add(input, 0.0);
                 prevActiveCols.Add(input, new int[0]);
             }
 
-            // Learning process will take 1000 iterations (cycles)
             int maxSPLearningCycles = 1000;
-
             int numStableCycles = 0;
 
-            // Instantiate the KNN Classifier
             var knnClassifier = new KNeighborsClassifier<string, string>();
-            // Instantiate the HTM Classifier
             var htmClassifier = new HtmClassifier<string, string>();
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
                 Console.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
 
-                // This trains the layer on input
                 foreach (var input in inputs)
                 {
                     double similarity;
 
-                    // Learn the input pattern.
-                    // Output lyrOut is the output of the last module in the layer.
                     var lyrOut = cortexLayer.Compute(input, true) as int[];
-
-                    // This is a general way to get the SpatialPooler result from the layer.
                     var activeColumns = cortexLayer.GetResult("sp") as int[];
-
                     var actCols = activeColumns.OrderBy(c => c).ToArray();
 
                     similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
-                    Console.WriteLine($"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
+                    Console.WriteLine($"[cycle={cycle:D4}, i={input}, cols=:{actCols.Length} s={similarity:F2}] SDR: {Helpers.StringifyVector(actCols)}");
 
                     prevActiveCols[input] = activeColumns;
                     prevSimilarity[input] = similarity;
 
-                    // Convert active columns to Cell[] for the classifier
                     Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
 
-                    // Train the KNN classifier with inputs and SDRs
                     knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
-                    
-                    // Train the HTM classifier with inputs and SDRs
                     htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
                 }
 
@@ -208,31 +165,31 @@ namespace NeoCortexApi.Experiments
 
             Console.WriteLine("Classifier training complete.");
 
-            // Reconstruct the input array and calculate similarity percentages
             Console.WriteLine("\nReconstructing inputs and calculating similarity percentages...");
             foreach (var input in inputValues)
             {
-                // Get SDR for the input
                 var sdr = cortexLayer.Compute(input, false) as int[];
                 var activeColumns = cortexLayer.GetResult("sp") as int[];
                 Cell[] cells = activeColumns.Select(idx => new Cell { Index = idx }).ToArray();
 
-                // Predict using KNN and HTM classifiers
-                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
-                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
-
-                // Log and compare outputs
                 Console.WriteLine($"\nInput: {input}");
+
+                // KNN Classifier
                 Console.WriteLine("KNN Classifier:");
+                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
                 foreach (var result in knnPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity * 100:F2}%");
+                    double normalizedSimilarity = Math.Min(100, result.Similarity * 100);
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {normalizedSimilarity:F2}%");
                 }
 
+                // HTM Classifier
                 Console.WriteLine("HTM Classifier:");
+                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
                 foreach (var result in htmPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity * 100:F2}%");
+                    double normalizedSimilarity = Math.Min(100, result.Similarity * 100);
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {normalizedSimilarity:F2}%");
                 }
             }
         }
