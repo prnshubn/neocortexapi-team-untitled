@@ -160,7 +160,7 @@ namespace NeoCortexApi.Experiments
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
-                Debug.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
+                Console.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
 
                 // This trains the layer on input pattern.
                 foreach (var input in inputs)
@@ -178,7 +178,7 @@ namespace NeoCortexApi.Experiments
 
                     similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
-                    Debug.WriteLine(
+                    Console.WriteLine(
                         $"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
 
                     prevActiveCols[input] = activeColumns;
