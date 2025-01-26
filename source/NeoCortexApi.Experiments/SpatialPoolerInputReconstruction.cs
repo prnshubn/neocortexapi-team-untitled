@@ -199,5 +199,53 @@ namespace NeoCortexApi.Experiments
             return sp;
         }
         
+        private static void ReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, 
+            List<double> inputValues)
+        {
+            // Initialize classifiers.
+            KNeighborsClassifier<string, string> knnClassifier = new ();
+            HtmClassifier<string, string> htmClassifier = new ();
+            
+            // Clear all learned patterns in the classifier.
+            knnClassifier.ClearState();
+            htmClassifier.ClearState();
+
+            // Loop through each input value in the list of input values.
+            foreach (var input in inputValues)
+            {
+                // Encode the current input value using the provided encoder, resulting in an SDR.
+                var inpSdr = encoder.Encode(input);
+
+                // Compute the active columns in the spatial pooler for the given input SDR, without learning.
+                var actCols = sp.Compute(inpSdr, false);
+                
+                Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+                
+                // Training the classifiers
+                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
+                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
+
+                Console.WriteLine($"\nInput: {input}");
+
+                // KNN Classifier Prediction
+                Console.WriteLine("KNN Classifier");
+                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
+
+                foreach (var result in knnPredictions)
+                {
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
+                }
+
+                // HTM Classifier Prediction
+                Console.WriteLine("HTM Classifier");
+                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
+
+                foreach (var result in htmPredictions)
+                {
+                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
+                }
+            }
+        }
+        
     }
 }
