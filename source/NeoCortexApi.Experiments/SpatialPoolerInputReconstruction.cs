@@ -25,7 +25,7 @@ namespace NeoCortexApi.Experiments
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstruction)}");
 
-            double max = 20;
+            double max = 100;
 
             // Used as a boosting parameter to ensure homeostatic plasticity effect.
             double minOctOverlapCycles = 1.0;
@@ -66,9 +66,11 @@ namespace NeoCortexApi.Experiments
                 { "Name", "scalar" },
                 { "ClipInput", false }
             };
-
+            
+            // Using Scalar Encoder to encode the scalar inputs
             EncoderBase encoder = new ScalarEncoder(settings);
 
+            // Create input values from 0 to max
             // Create input values from 0 to 4.
             List<double> inputValues = new();
             for (int i = 0; i < (int)max; i++)
@@ -210,7 +212,9 @@ namespace NeoCortexApi.Experiments
             knnClassifier.ClearState();
             htmClassifier.ClearState();
 
-            // Loop through each input value in the list of input values.
+            List<Cell[]> cellList = new ();
+
+            // Loop through each input value in the list of input values to train the classifiers.
             foreach (var input in inputValues)
             {
                 // Encode the current input value using the provided encoder, resulting in an SDR.
@@ -218,34 +222,41 @@ namespace NeoCortexApi.Experiments
 
                 // Compute the active columns in the spatial pooler for the given input SDR, without learning.
                 var actCols = sp.Compute(inpSdr, false);
-                
-                Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
-                
-                // Training the classifiers
-                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
-                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
 
+                var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+                cellList.Add(cellArray);
+
+                // Training the classifiers
+                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
+                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
+            }
+            
+            Console.WriteLine("Training the classifier is complete");
+            
+            // Loop through each input value in the list of input values to predict the inputs.
+            foreach (var input in inputValues)
+            {
                 Console.WriteLine($"\nInput: {input}");
 
-                // KNN Classifier Prediction
+                // KNN Classifier Reconstruction
                 Console.WriteLine("KNN Classifier");
-                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
+                var knnPredictions = knnClassifier.GetPredictedInputValues(cellList[(int)input]);
 
                 foreach (var result in knnPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
+                    Console.WriteLine($"Reconstructed Input: {result.PredictedInput}, Similarity: {result.Similarity.ToString("F2", CultureInfo.InvariantCulture)}");
                 }
 
                 // HTM Classifier Prediction
                 Console.WriteLine("HTM Classifier");
-                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
+                var htmPredictions = htmClassifier.GetPredictedInputValues(cellList[(int)input]);
 
                 foreach (var result in htmPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
+                    var normalizedSimilarity = result.Similarity / 100;
+                    Console.WriteLine($"Reconstructed Input: {result.PredictedInput}, Similarity: {normalizedSimilarity.ToString("F2", CultureInfo.InvariantCulture)}");
                 }
             }
         }
-        
     }
 }
