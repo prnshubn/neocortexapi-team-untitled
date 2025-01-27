@@ -84,6 +84,9 @@ namespace NeoCortexApi.Experiments
             if (max < 10) throw new ArgumentException("max must be 10 or greater", nameof(max));
             
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
+            
+            // Initialize output file
+            InitializeOutputFile();
 
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
