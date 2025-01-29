@@ -208,8 +208,9 @@ namespace NeoCortexApi.Experiments
                     CalculateReconstructionError(input, htmPredictions);
                 }
             }
-
-            
+            // Display classifier performance logs
+            DisplayClassifierLogs();
+              
         }
 
         /// <summary>
@@ -225,7 +226,17 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine($"Reconstruction Error: {error} for predicted input: {predictedInput}");
             }
         }
-
+        /// <summary>
+        /// Displays the classifier logs after each experiment.
+        /// </summary>
+        private static void DisplayClassifierLogs()
+        {
+            Console.WriteLine("\nClassifier Performance Logs:");
+            foreach (var log in classifierLogs)
+            {
+                Console.WriteLine(log);
+            }
+        }
         
     }
 }
