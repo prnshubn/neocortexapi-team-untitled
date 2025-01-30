@@ -186,31 +186,40 @@ namespace NeoCortexApi.Experiments
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
 
-                Console.WriteLine($"\nInput: {input}");
+                Console.WriteLine($"\nInput: {input.ToString("F2", CultureInfo.InvariantCulture)}");
 
                 // KNN Classifier Prediction
                 Console.WriteLine("KNN Classifier");
                 var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
                 foreach (var result in knnPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
-                    // Calculate Reconstruction Error for KNN
-                    CalculateReconstructionError(input, knnPredictions);
+                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 2);
+                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F2", CultureInfo.InvariantCulture)}, " +
+                                      $"Similarity: {result.Similarity.ToString("F2", CultureInfo.InvariantCulture)}");
                 }
+
+                // Call once after collecting predictions for KNN
+                CalculateReconstructionError(input, knnPredictions);
 
                 // HTM Classifier Prediction
                 Console.WriteLine("HTM Classifier");
                 var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
                 foreach (var result in htmPredictions)
                 {
-                    Console.WriteLine($"Predicted Input: {result.PredictedInput}, Similarity: {result.Similarity}");
-                    // Calculate Reconstruction Error for HTM
-                    CalculateReconstructionError(input, htmPredictions);
+                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 2);
+                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F2", CultureInfo.InvariantCulture)}");
+
+                    // Manually calculate similarity for HTM (absolute difference)
+                    double similarity = Math.Round(1 - Math.Abs(input - predictedValue) / Math.Max(1, input), 2);
+                    Console.WriteLine($"Similarity: {similarity.ToString("F2", CultureInfo.InvariantCulture)}");
+
+                    // Calculate and display reconstruction error immediately
+                    CalculateReconstructionError(input, new List<NeoCortexApi.Classifiers.ClassifierResult<string>> { result });
                 }
             }
+
             // Display classifier performance logs
             DisplayClassifierLogs();
-              
         }
 
         /// <summary>
@@ -223,9 +232,11 @@ namespace NeoCortexApi.Experiments
                 // Extract the predicted input value from the classifier result
                 double predictedInput = Convert.ToDouble(prediction.PredictedInput);
                 double error = Math.Abs(originalInput - predictedInput); // Calculate absolute error
-                Console.WriteLine($"Reconstruction Error: {error} for predicted input: {predictedInput}");
+                Console.WriteLine($"Reconstruction Error: {error.ToString("F2", CultureInfo.InvariantCulture)} " +
+                                  $"for predicted input: {predictedInput.ToString("F2", CultureInfo.InvariantCulture)}");
             }
         }
+
         /// <summary>
         /// Displays the classifier logs after each experiment.
         /// </summary>
@@ -237,6 +248,5 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine(log);
             }
         }
-        
     }
 }
