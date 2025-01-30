@@ -181,20 +181,20 @@ namespace NeoCortexApi.Experiments
             {
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
-                
+
                 Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
 
-                Console.WriteLine($"\nInput: {input.ToString("F2", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"\nInput: {input.ToString("F1", CultureInfo.InvariantCulture)}");
 
                 // KNN Classifier Prediction
                 Console.WriteLine("KNN Classifier");
                 var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
                 foreach (var result in knnPredictions)
                 {
-                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 2);
-                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F2", CultureInfo.InvariantCulture)}, " +
+                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 1);
+                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F1", CultureInfo.InvariantCulture)}, " +
                                       $"Similarity: {result.Similarity.ToString("F2", CultureInfo.InvariantCulture)}");
                 }
 
@@ -206,8 +206,8 @@ namespace NeoCortexApi.Experiments
                 var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
                 foreach (var result in htmPredictions)
                 {
-                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 2);
-                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F2", CultureInfo.InvariantCulture)}");
+                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 1);
+                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F1", CultureInfo.InvariantCulture)}");
 
                     // Manually calculate similarity for HTM (absolute difference)
                     double similarity = Math.Round(1 - Math.Abs(input - predictedValue) / Math.Max(1, input), 2);
@@ -217,6 +217,7 @@ namespace NeoCortexApi.Experiments
                     CalculateReconstructionError(input, new List<NeoCortexApi.Classifiers.ClassifierResult<string>> { result });
                 }
             }
+
 
             // Display classifier performance logs
             DisplayClassifierLogs();
