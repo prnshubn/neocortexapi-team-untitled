@@ -9,20 +9,28 @@ using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
+using ScottPlot;
 
 namespace NeoCortexApi.Experiments
 {
     /// <summary>
     /// Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN & HTM).
+    /// This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating 
+    /// the performance of reconstructed inputs using both the KNN and HTM classifiers. It also includes 
+    /// a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
     /// </summary>
     [TestClass]
     public class SpatialPoolerInputReconstruction
     {
-        private static List<string> classifierLogs = new List<string>();
-
+        /// <summary>
+        /// Setup method for the input reconstruction experiment.
+        /// Initializes the Scalar Encoder, Spatial Pooler, and classifiers (KNN & HTM) for training and evaluation. 
+        /// The method also sets up configuration parameters for the Spatial Pooler and Scalar Encoder, and triggers
+        /// the training and evaluation processes using a set of input values with complex patterns.
+        /// </summary>
         [TestMethod]
         [TestCategory("Experiment")]
-        public void SetupWithNoiseAndComplexPatterns()
+        public void Setup()
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstruction)} with Noise and Complex Patterns");
 
@@ -32,6 +40,7 @@ namespace NeoCortexApi.Experiments
             int inputBits = 200;
             int numColumns = 1024;
 
+            // HTM configuration
             HtmConfig cfg = new HtmConfig(new int[] { inputBits }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
@@ -48,6 +57,7 @@ namespace NeoCortexApi.Experiments
                 StimulusThreshold = 10,
             };
 
+            // Scalar Encoder settings
             Dictionary<string, object> settings = new()
             {
                 { "W", 21 },
@@ -60,44 +70,28 @@ namespace NeoCortexApi.Experiments
                 { "ClipInput", false }
             };
 
+            // Instantiate encoder and input values
             EncoderBase encoder = new ScalarEncoder(settings);
+            List<double> inputValues = new();
+            for (int i = 0; i < (int)max; i++)
+            {
+                inputValues.Add(i * 0.1); // Using 1-digit decimal inputs
+            }
 
-            // Create complex input values with noise
-            List<double> inputValues = GenerateNoisyInputValues(max);
-
+            // Train the Spatial Pooler and perform the reconstruction experiment
             var sp = SpatialPoolerTraining(cfg, encoder, inputValues);
             ReconstructionExperiment(sp, encoder, inputValues);
         }
 
         /// <summary>
-        /// Generates noisy input values by adding random noise to a linear sequence of numbers.
-        /// </summary>
-        /// <param name="max">The maximum value for the input range.</param>
-        /// <returns>A list of noisy input values.</returns>
-        private static List<double> GenerateNoisyInputValues(double max)
-        {
-            List<double> inputValues = new List<double>();
-            Random rand = new Random();
-
-            // Generate a mix of linear and random noisy values
-            for (int i = 0; i < max; i++)
-            {
-                double noise = rand.NextDouble() * 2 - 1; // noise between -1 and 1
-                double value = i + noise; // add noise to a simple sequence
-                inputValues.Add(Math.Max(0, Math.Min(value, max))); // ensure it's within bounds
-            }
-
-            // Optionally, add more complex patterns here (e.g., non-linear sequences, etc.)
-            return inputValues;
-        }
-
-        /// <summary>
-        /// Trains the Spatial Pooler with the provided configuration, encoder, and noisy input values.
+        /// Trains the Spatial Pooler using the provided configuration and input values.
+        /// The Spatial Pooler learns stable representations of the input patterns over multiple learning cycles.
         /// </summary>
         private static SpatialPooler SpatialPoolerTraining(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
             var mem = new Connections(cfg);
             bool isInStableState = false;
+
             HomeostaticPlasticityController hpa = new(mem, inputValues.Count * 40,
                 (isStable, numPatterns, actColAvg, seenInputs) =>
                 {
@@ -116,7 +110,7 @@ namespace NeoCortexApi.Experiments
             SpatialPooler sp = new(hpa);
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
-            CortexLayer<object, object> cortexLayer = new("L1");
+            CortexLayer<object, object> cortexLayer = new CortexLayer<object, object>("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
             cortexLayer.HtmModules.Add("sp", sp);
 
@@ -139,13 +133,13 @@ namespace NeoCortexApi.Experiments
 
                 foreach (var input in inputs)
                 {
-                    double similarity;
                     var lyrOut = cortexLayer.Compute((object)input, true) as int[];
                     var activeColumns = cortexLayer.GetResult("sp") as int[];
                     var actCols = activeColumns.OrderBy(c => c).ToArray();
+                    double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
-                    similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
-                    Console.WriteLine($"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
+                    Console.WriteLine(
+                        $"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
 
                     prevActiveCols[input] = activeColumns;
                     prevSimilarity[input] = similarity;
@@ -166,88 +160,91 @@ namespace NeoCortexApi.Experiments
         }
 
         /// <summary>
-        /// Runs the reconstruction experiment for both KNN and HTM classifiers, and calculates reconstruction errors.
+        /// Evaluates the performance of the KNN and HTM classifiers after training the Spatial Pooler.
+        /// The experiment predicts reconstructed inputs using both classifiers and calculates the similarity and 
+        /// reconstruction errors. The results are displayed for each input.
         /// </summary>
         private static void ReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
-            // Initialize KNN and HTM classifiers
+            // Initialize classifiers.
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
+
             knnClassifier.ClearState();
             htmClassifier.ClearState();
 
-            // Process each input value
+            List<Cell[]> cellList = new();
+
+            // Train classifiers
             foreach (var input in inputValues)
             {
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
+                var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+                cellList.Add(cellArray);
 
-                Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
-                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
-                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
+                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
+                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
+            }
 
-                Console.WriteLine($"\nInput: {input.ToString("F1", CultureInfo.InvariantCulture)}");
+            Console.WriteLine("Training the classifier is complete\n");
+
+            // After training, display reconstruction performance and prepare data for plotting
+            List<double> knnPredictions = new();
+            List<double> htmPredictions = new();
+            List<double> similarities = new();
+
+            foreach (var input in inputValues)
+            {
+                Console.WriteLine($"\nInput: {input:F1}"); // Format input to 1 decimal place
 
                 // KNN Classifier Prediction
-                Console.WriteLine("KNN Classifier");
-                var knnPredictions = knnClassifier.GetPredictedInputValues(cells);
-                foreach (var result in knnPredictions)
-                {
-                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 1);
-                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F1", CultureInfo.InvariantCulture)}, " +
-                                      $"Similarity: {result.Similarity.ToString("F2", CultureInfo.InvariantCulture)}");
-                }
-
-                // Call once after collecting predictions for KNN
-                CalculateReconstructionError(input, knnPredictions);
+                var knnPredictionsList = knnClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]); // Adjusted index for 1 decimal point input
+                var knnBestPrediction = knnPredictionsList.OrderBy(p => p.Similarity).First(); // Get the best prediction
+                double predictedKnnInput = double.Parse(knnBestPrediction.PredictedInput);
+                double knnError = Math.Abs(input - predictedKnnInput); // Calculate the error as the absolute difference
+                Console.WriteLine($"KNN Classifier: Reconstructed Input: {predictedKnnInput:F1}, Similarity: {knnBestPrediction.Similarity:F2}, Reconstruction Error: {knnError:F2}");
 
                 // HTM Classifier Prediction
-                Console.WriteLine("HTM Classifier");
-                var htmPredictions = htmClassifier.GetPredictedInputValues(cells);
-                foreach (var result in htmPredictions)
-                {
-                    double predictedValue = Math.Round(Convert.ToDouble(result.PredictedInput), 1);
-                    Console.WriteLine($"Predicted Input: {predictedValue.ToString("F1", CultureInfo.InvariantCulture)}");
+                var htmPredictionsList = htmClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]); // Adjusted index for 1 decimal point input
+                var htmBestPrediction = htmPredictionsList.OrderBy(p => p.Similarity).First(); // Get the best prediction
+                double predictedHtmInput = double.Parse(htmBestPrediction.PredictedInput);
+                double htmError = Math.Abs(input - predictedHtmInput); // Calculate the error as the absolute difference
+                Console.WriteLine($"HTM Classifier: Reconstructed Input: {predictedHtmInput:F1}, Similarity: {htmBestPrediction.Similarity:F2}, Reconstruction Error: {htmError:F2}");
 
-                    // Manually calculate similarity for HTM (absolute difference)
-                    double similarity = Math.Round(1 - Math.Abs(input - predictedValue) / Math.Max(1, input), 2);
-                    Console.WriteLine($"Similarity: {similarity.ToString("F2", CultureInfo.InvariantCulture)}");
-
-                    // Calculate and display reconstruction error immediately
-                    CalculateReconstructionError(input, new List<NeoCortexApi.Classifiers.ClassifierResult<string>> { result });
-                }
+                // Store data for plotting
+                knnPredictions.Add(predictedKnnInput);
+                htmPredictions.Add(predictedHtmInput);
+                similarities.Add(knnError);  // You could also store the HTM error if preferred
             }
 
-
-            // Display classifier performance logs
-            DisplayClassifierLogs();
+            // Now, plot the results using ScottPlot
+            PlotAndDisplayGraph(inputValues, knnPredictions, htmPredictions, similarities);
         }
 
-        /// <summary>
-        /// Calculates and prints the reconstruction error based on the predicted input.
-        /// </summary>
-        private static void CalculateReconstructionError(double originalInput, IEnumerable<NeoCortexApi.Classifiers.ClassifierResult<string>> predictions)
+        private static void PlotAndDisplayGraph(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> similarities)
         {
-            foreach (var prediction in predictions)
-            {
-                // Extract the predicted input value from the classifier result
-                double predictedInput = Convert.ToDouble(prediction.PredictedInput);
-                double error = Math.Abs(originalInput - predictedInput); // Calculate absolute error
-                Console.WriteLine($"Reconstruction Error: {error.ToString("F2", CultureInfo.InvariantCulture)} " +
-                                  $"for predicted input: {predictedInput.ToString("F2", CultureInfo.InvariantCulture)}");
-            }
+            // Create a new plot (no need to pass width/height in constructor)
+            var plt = new Plot();
+
+            // Add scatter plots for KNN and HTM predictions
+            plt.AddScatter(inputs.ToArray(), knnPredictions.ToArray(), label: "KNN Predictions");
+            plt.AddScatter(inputs.ToArray(), htmPredictions.ToArray(), label: "HTM Predictions");
+
+            // Optionally, add the reconstruction error as a scatter plot as well
+            plt.AddScatter(inputs.ToArray(), similarities.ToArray(), label: "Reconstruction Error");
+
+            // Customize the plot with labels and title
+            plt.XLabel("Input Values");
+            plt.YLabel("Predictions / Error");
+            plt.Legend();
+
+            // Save the plot as an image file with specified size
+            plt.SaveFig("ReconstructionPlot.png", 600, 400); // Save the plot as an image file
+            Console.WriteLine("Plot saved to 'ReconstructionPlot.png'.");
         }
 
-        /// <summary>
-        /// Displays the classifier logs after each experiment.
-        /// </summary>
-        private static void DisplayClassifierLogs()
-        {
-            Console.WriteLine("\nClassifier Performance Logs:");
-            foreach (var log in classifierLogs)
-            {
-                Console.WriteLine(log);
-            }
-        }
+
+
     }
 }
