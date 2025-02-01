@@ -10,6 +10,7 @@ using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
 using ScottPlot;
+using System.IO;
 
 namespace NeoCortexApi.Experiments
 {
@@ -240,8 +241,11 @@ namespace NeoCortexApi.Experiments
             plt.Legend();
 
             // Save the plot as an image file with specified size
-            plt.SaveFig("ReconstructionPlot.png", 600, 400); // Save the plot as an image file
-            Console.WriteLine("Plot saved to 'ReconstructionPlot.png'.");
+            string savePath = Path.GetFullPath("ReconstructionPlot.png");
+            plt.SaveFig(savePath, 600, 400);
+            Console.WriteLine($"Plot saved at: {savePath}");
+            System.Diagnostics.Process.Start("explorer.exe", savePath);
+
         }
 
 
