@@ -9,8 +9,7 @@ using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
-using ScottPlot;
-using System.IO;
+
 
 namespace NeoCortexApi.Experiments
 {
@@ -127,10 +126,11 @@ namespace NeoCortexApi.Experiments
 
             int maxSPLearningCycles = 1000;
             int numStableCycles = 0;
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
-                Console.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
+                Console.WriteLine($"Cycle ** {cycle} ** Stability: {isInStableState}");
 
                 foreach (var input in inputs)
                 {
@@ -139,24 +139,18 @@ namespace NeoCortexApi.Experiments
                     var actCols = activeColumns.OrderBy(c => c).ToArray();
                     double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
-                    Console.WriteLine(
-                        $"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
+                    Console.WriteLine($"[cycle={cycle:D4}, i={input}, cols={actCols.Length}, s={similarity:F2}] SDR: {Helpers.StringifyVector(actCols)}");
 
                     prevActiveCols[input] = activeColumns;
                     prevSimilarity[input] = similarity;
                 }
 
-                if (isInStableState)
-                {
-                    numStableCycles++;
-                }
-
-                if (numStableCycles > 5)
-                {
-                    break;
-                }
+                if (isInStableState) numStableCycles++;
+                if (numStableCycles > 5) break;
             }
 
+            stopwatch.Stop();
+            Console.WriteLine($"Spatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
             return sp;
         }
 
@@ -175,6 +169,7 @@ namespace NeoCortexApi.Experiments
             htmClassifier.ClearState();
 
             List<Cell[]> cellList = new();
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             // Train classifiers
             foreach (var input in inputValues)
@@ -189,66 +184,35 @@ namespace NeoCortexApi.Experiments
             }
 
             Console.WriteLine("Training the classifier is complete\n");
+            stopwatch.Stop();
+            Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
 
-            // After training, display reconstruction performance and prepare data for plotting
-            List<double> knnPredictions = new();
-            List<double> htmPredictions = new();
-            List<double> similarities = new();
+            double totalKnnError = 0;
+            double totalHtmError = 0;
 
             foreach (var input in inputValues)
             {
-                Console.WriteLine($"\nInput: {input:F1}"); // Format input to 1 decimal place
+                Console.WriteLine($"\nInput: {input:F1}");
 
-                // KNN Classifier Prediction
-                var knnPredictionsList = knnClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]); // Adjusted index for 1 decimal point input
-                var knnBestPrediction = knnPredictionsList.OrderBy(p => p.Similarity).First(); // Get the best prediction
+                var knnPredictionsList = knnClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]);
+                var knnBestPrediction = knnPredictionsList.OrderBy(p => p.Similarity).First();
                 double predictedKnnInput = double.Parse(knnBestPrediction.PredictedInput);
-                double knnError = Math.Abs(input - predictedKnnInput); // Calculate the error as the absolute difference
-                Console.WriteLine($"KNN Classifier: Reconstructed Input: {predictedKnnInput:F1}, Similarity: {knnBestPrediction.Similarity:F2}, Reconstruction Error: {knnError:F2}");
+                double knnError = Math.Abs(input - predictedKnnInput);
+                Console.WriteLine($"KNN Classifier: Reconstructed Input: {predictedKnnInput:F1}, Error: {knnError:F2}");
 
-                // HTM Classifier Prediction
-                var htmPredictionsList = htmClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]); // Adjusted index for 1 decimal point input
-                var htmBestPrediction = htmPredictionsList.OrderBy(p => p.Similarity).First(); // Get the best prediction
+                var htmPredictionsList = htmClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]);
+                var htmBestPrediction = htmPredictionsList.OrderBy(p => p.Similarity).First();
                 double predictedHtmInput = double.Parse(htmBestPrediction.PredictedInput);
-                double htmError = Math.Abs(input - predictedHtmInput); // Calculate the error as the absolute difference
-                Console.WriteLine($"HTM Classifier: Reconstructed Input: {predictedHtmInput:F1}, Similarity: {htmBestPrediction.Similarity:F2}, Reconstruction Error: {htmError:F2}");
+                double htmError = Math.Abs(input - predictedHtmInput);
+                Console.WriteLine($"HTM Classifier: Reconstructed Input: {predictedHtmInput:F1}, Error: {htmError:F2}");
 
-                // Store data for plotting
-                knnPredictions.Add(predictedKnnInput);
-                htmPredictions.Add(predictedHtmInput);
-                similarities.Add(knnError);  // You could also store the HTM error if preferred
+                totalKnnError += knnError;
+                totalHtmError += htmError;
             }
 
-            // Now, plot the results using ScottPlot
-            PlotAndDisplayGraph(inputValues, knnPredictions, htmPredictions, similarities);
+            Console.WriteLine($"\nMean Absolute Error (MAE):");
+            Console.WriteLine($"KNN: {totalKnnError / inputValues.Count:F3}");
+            Console.WriteLine($"HTM: {totalHtmError / inputValues.Count:F3}");
         }
-
-        private static void PlotAndDisplayGraph(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> similarities)
-        {
-            // Create a new plot (no need to pass width/height in constructor)
-            var plt = new Plot();
-
-            // Add scatter plots for KNN and HTM predictions
-            plt.AddScatter(inputs.ToArray(), knnPredictions.ToArray(), label: "KNN Predictions");
-            plt.AddScatter(inputs.ToArray(), htmPredictions.ToArray(), label: "HTM Predictions");
-
-            // Optionally, add the reconstruction error as a scatter plot as well
-            plt.AddScatter(inputs.ToArray(), similarities.ToArray(), label: "Reconstruction Error");
-
-            // Customize the plot with labels and title
-            plt.XLabel("Input Values");
-            plt.YLabel("Predictions / Error");
-            plt.Legend();
-
-            // Save the plot as an image file with specified size
-            string savePath = Path.GetFullPath("ReconstructionPlot.png");
-            plt.SaveFig(savePath, 600, 400);
-            Console.WriteLine($"Plot saved at: {savePath}");
-            System.Diagnostics.Process.Start("explorer.exe", savePath);
-
-        }
-
-
-
     }
 }
