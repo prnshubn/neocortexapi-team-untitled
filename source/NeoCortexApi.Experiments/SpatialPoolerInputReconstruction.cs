@@ -9,6 +9,8 @@ using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using ScottPlot;
 
 namespace NeoCortexApi.Experiments
 {
@@ -220,6 +222,44 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine($"Reconstructed Input: {htmPrediction.PredictedInput}, Similarity: {htmPrediction.Similarity.ToString("F2", CultureInfo.InvariantCulture)}%");
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
             }
+            
+            // Plot the results using ScottPlot
+            PlotAndDisplayGraph(inputValues, knnPredictions, htmPredictions);
+        }
+        
+        private static void PlotAndDisplayGraph(
+            List<double> inputs,
+            List<double> knnPredictions,
+            List<double> htmPredictions)
+        {
+            var plot = new Plot();
+
+            double[] x = inputs.ToArray();
+            double[] yKnn = knnPredictions.ToArray();
+            double[] yHtm = htmPredictions.ToArray();
+
+            // Add scatter plots
+            var knnScatter = plot.Add.Scatter(x, yKnn);
+            knnScatter.Label = "KNN Predictions";
+            knnScatter.Color = Colors.Blue;
+
+            var htmScatter = plot.Add.Scatter(x, yHtm);
+            htmScatter.Label = "HTM Predictions";
+            htmScatter.Color = Colors.Orange;
+
+            // Customize plot
+            plot.Title("Prediction Comparison");
+            plot.XLabel("Input Values");
+            plot.YLabel("Predictions");
+            plot.Axes.AutoScale();
+
+            // macOS-specific path handling
+            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ReconstructionPlot.png");
+            plot.Save(savePath, 600, 600);
+            Console.WriteLine($"Plot saved at: {savePath}");
+
+            // macOS file opening command
+            Process.Start("open", savePath);
         }
     }
 }
