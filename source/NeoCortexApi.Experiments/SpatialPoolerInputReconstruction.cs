@@ -10,7 +10,6 @@ using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
 
-
 namespace NeoCortexApi.Experiments
 {
     /// <summary>
@@ -34,14 +33,14 @@ namespace NeoCortexApi.Experiments
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstruction)} with Noise and Complex Patterns");
 
-            double max = 20;
+            double max = 5;
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
             int inputBits = 200;
             int numColumns = 1024;
 
             // HTM configuration
-            HtmConfig cfg = new HtmConfig(new int[] { inputBits }, new int[] { numColumns })
+            HtmConfig cfg = new (new int[] { inputBits }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
                 MaxBoost = maxBoost,
@@ -73,19 +72,24 @@ namespace NeoCortexApi.Experiments
             // Instantiate encoder and input values
             EncoderBase encoder = new ScalarEncoder(settings);
             List<double> inputValues = new();
-            for (int i = 0; i < (int)max; i++)
+            for (double i = 0; i < max; i++)
             {
-                inputValues.Add(i * 0.1); // Using 1-digit decimal inputs
+                inputValues.Add(i);
             }
 
-            // Train the Spatial Pooler and perform the reconstruction experiment
+            // Train the Spatial Pooler
             var sp = SpatialPoolerTraining(cfg, encoder, inputValues);
+            
+            // Use the trained Spatial Pooler to Reconstruct Inputs
             ReconstructionExperiment(sp, encoder, inputValues);
         }
 
         /// <summary>
         /// Trains the Spatial Pooler using the provided configuration and input values.
         /// The Spatial Pooler learns stable representations of the input patterns over multiple learning cycles.
+        /// <param name="cfg"></param>
+        /// <param name="encoder"></param>
+        /// <param name="inputValues"></param>
         /// </summary>
         private static SpatialPooler SpatialPoolerTraining(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
@@ -150,7 +154,7 @@ namespace NeoCortexApi.Experiments
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"Spatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"\nSpatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
             return sp;
         }
 
@@ -158,17 +162,21 @@ namespace NeoCortexApi.Experiments
         /// Evaluates the performance of the KNN and HTM classifiers after training the Spatial Pooler.
         /// The experiment predicts reconstructed inputs using both classifiers and calculates the similarity and 
         /// reconstruction errors. The results are displayed for each input.
+        /// <param name="sp"></param>
+        /// <param name="encoder"></param>
+        /// <param name="inputValues"></param>
         /// </summary>
         private static void ReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
-            // Initialize classifiers.
+            // Initialize classifiers
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
 
+            // Clears the model from all the stored sequences
             knnClassifier.ClearState();
             htmClassifier.ClearState();
 
-            List<Cell[]> cellList = new();
+            Dictionary<double, Cell[]> cellList = new();
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             // Train classifiers
@@ -177,42 +185,41 @@ namespace NeoCortexApi.Experiments
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
                 var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
-                cellList.Add(cellArray);
+                cellList.Add(input, cellArray);
 
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
             }
-
-            Console.WriteLine("Training the classifier is complete\n");
+            
             stopwatch.Stop();
-            Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
-
-            double totalKnnError = 0;
-            double totalHtmError = 0;
-
+            Console.WriteLine("\nTraining the classifier is complete");
+            Console.WriteLine($"\nClassifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
+        
+            // Shuffle the list to randomize the order
+            Random random = new();
+            // inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
+            
+            // After training, display reconstruction performance and prepare data for plotting
+            List<double> knnPredictions = new();
+            List<double> htmPredictions = new();
+            
             foreach (var input in inputValues)
             {
                 Console.WriteLine($"\nInput: {input:F1}");
+                
+                // KNN Classifier Reconstruction
+                Console.WriteLine("KNN Classifier");
+                var knnPrediction = knnClassifier.GetPredictedInputValues(cellList[input])[0];
+                var normalizedSimilarity = knnPrediction.Similarity * 100;
+                Console.WriteLine($"Reconstructed Input: {knnPrediction.PredictedInput}, Similarity: {normalizedSimilarity.ToString("F2", CultureInfo.InvariantCulture)}%");
+                knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
 
-                var knnPredictionsList = knnClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]);
-                var knnBestPrediction = knnPredictionsList.OrderBy(p => p.Similarity).First();
-                double predictedKnnInput = double.Parse(knnBestPrediction.PredictedInput);
-                double knnError = Math.Abs(input - predictedKnnInput);
-                Console.WriteLine($"KNN Classifier: Reconstructed Input: {predictedKnnInput:F1}, Error: {knnError:F2}");
-
-                var htmPredictionsList = htmClassifier.GetPredictedInputValues(cellList[(int)(input * 10)]);
-                var htmBestPrediction = htmPredictionsList.OrderBy(p => p.Similarity).First();
-                double predictedHtmInput = double.Parse(htmBestPrediction.PredictedInput);
-                double htmError = Math.Abs(input - predictedHtmInput);
-                Console.WriteLine($"HTM Classifier: Reconstructed Input: {predictedHtmInput:F1}, Error: {htmError:F2}");
-
-                totalKnnError += knnError;
-                totalHtmError += htmError;
+                // HTM Classifier Reconstruction
+                Console.WriteLine("HTM Classifier");
+                var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
+                Console.WriteLine($"Reconstructed Input: {htmPrediction.PredictedInput}, Similarity: {htmPrediction.Similarity.ToString("F2", CultureInfo.InvariantCulture)}%");
+                htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
             }
-
-            Console.WriteLine($"\nMean Absolute Error (MAE):");
-            Console.WriteLine($"KNN: {totalKnnError / inputValues.Count:F3}");
-            Console.WriteLine($"HTM: {totalHtmError / inputValues.Count:F3}");
         }
     }
 }

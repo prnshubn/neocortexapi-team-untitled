@@ -79,7 +79,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="ScottPlot" Version="4.1.51" />
    
   </ItemGroup>
 
