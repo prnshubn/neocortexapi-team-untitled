@@ -6,7 +6,6 @@ using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
 using NeoCortexApi.Network;
-using NeoCortexApi.Utility;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -41,7 +40,6 @@ namespace NeoCortexApi.Experiments
             int inputBits = 200;
             int numColumns = 1024;
 
-            // HTM configuration
             HtmConfig cfg = new (new int[] { inputBits }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
@@ -71,7 +69,6 @@ namespace NeoCortexApi.Experiments
                 { "ClipInput", false }
             };
 
-            // Instantiate encoder and input values
             EncoderBase encoder = new ScalarEncoder(settings);
             List<double> inputValues = new();
             for (double i = 0; i < max; i++)
@@ -97,20 +94,13 @@ namespace NeoCortexApi.Experiments
         {
             var mem = new Connections(cfg);
             bool isInStableState = false;
-
+            int numStableCycles = 0;
+            
             HomeostaticPlasticityController hpa = new(mem, inputValues.Count * 40,
                 (isStable, numPatterns, actColAvg, seenInputs) =>
                 {
-                    if (!isStable)
-                    {
-                        Debug.WriteLine($"INSTABLE STATE");
-                        isInStableState = false;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"STABLE STATE");
-                        isInStableState = true;
-                    }
+                    isInStableState = isStable;
+                    Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
                 });
 
             SpatialPooler sp = new(hpa);
@@ -120,35 +110,16 @@ namespace NeoCortexApi.Experiments
             cortexLayer.HtmModules.Add("encoder", encoder);
             cortexLayer.HtmModules.Add("sp", sp);
 
-            double[] inputs = inputValues.ToArray();
-            Dictionary<double, int[]> prevActiveCols = new();
-            Dictionary<double, double> prevSimilarity = new();
-
-            foreach (var input in inputs)
-            {
-                prevSimilarity.Add(input, 0.0);
-                prevActiveCols.Add(input, new int[0]);
-            }
-
             int maxSPLearningCycles = 1000;
-            int numStableCycles = 0;
             Stopwatch stopwatch = Stopwatch.StartNew();
-
+            
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
-                Console.WriteLine($"Cycle ** {cycle} ** Stability: {isInStableState}");
-
-                foreach (var input in inputs)
+                Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
+                
+                foreach (var input in inputValues)
                 {
-                    var lyrOut = cortexLayer.Compute((object)input, true) as int[];
-                    var activeColumns = cortexLayer.GetResult("sp") as int[];
-                    var actCols = activeColumns.OrderBy(c => c).ToArray();
-                    double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
-
-                    Console.WriteLine($"[cycle={cycle:D4}, i={input}, cols={actCols.Length}, s={similarity:F2}] SDR: {Helpers.StringifyVector(actCols)}");
-
-                    prevActiveCols[input] = activeColumns;
-                    prevSimilarity[input] = similarity;
+                    cortexLayer.Compute((object)input, true);
                 }
 
                 if (isInStableState) numStableCycles++;
@@ -156,7 +127,7 @@ namespace NeoCortexApi.Experiments
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"\nSpatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Spatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
             return sp;
         }
 
@@ -188,7 +159,6 @@ namespace NeoCortexApi.Experiments
                 var actCols = sp.Compute(inpSdr, false);
                 var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
                 cellList.Add(input, cellArray);
-
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
             }
@@ -226,40 +196,32 @@ namespace NeoCortexApi.Experiments
             // Plot the results using ScottPlot
             PlotAndDisplayGraph(inputValues, knnPredictions, htmPredictions);
         }
-        
-        private static void PlotAndDisplayGraph(
-            List<double> inputs,
-            List<double> knnPredictions,
-            List<double> htmPredictions)
+
+        private static void PlotAndDisplayGraph(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions)
         {
             var plot = new Plot();
-
-            double[] x = inputs.ToArray();
-            double[] yKnn = knnPredictions.ToArray();
-            double[] yHtm = htmPredictions.ToArray();
-
-            // Add scatter plots
-            var knnScatter = plot.Add.Scatter(x, yKnn);
-            knnScatter.Label = "KNN Predictions";
-            knnScatter.Color = Colors.Blue;
-
-            var htmScatter = plot.Add.Scatter(x, yHtm);
-            htmScatter.Label = "HTM Predictions";
-            htmScatter.Color = Colors.Orange;
-
-            // Customize plot
+            plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).Label = "KNN Predictions";
+            plot.Add.Scatter(inputs.ToArray(), htmPredictions.ToArray()).Label = "HTM Predictions";
             plot.Title("Prediction Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Predictions");
             plot.Axes.AutoScale();
-
-            // macOS-specific path handling
+            
             string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ReconstructionPlot.png");
-            plot.Save(savePath, 600, 600);
-            Console.WriteLine($"Plot saved at: {savePath}");
-
-            // macOS file opening command
-            Process.Start("open", savePath);
+            try
+            {
+                plot.Save(savePath, 600, 600);
+                Console.WriteLine($"Plot saved at: {savePath}");
+                
+                if (OperatingSystem.IsMacOS())
+                    Process.Start("open", savePath);
+                else if (OperatingSystem.IsWindows())
+                    Process.Start(new ProcessStartInfo { FileName = savePath, UseShellExecute = true });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine($"Error opening plot: {ex.Message}");
+            }
         }
     }
 }
