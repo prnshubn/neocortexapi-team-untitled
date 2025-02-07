@@ -15,11 +15,18 @@ namespace NeoCortexApi.Experiments
 {
     /// <summary>
     /// Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN & HTM).
-    /// This experiment encodes scalar inputs, trains classifiers, and evaluates input reconstruction performance.
+    /// This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating 
+    /// the performance of reconstructed inputs using both the KNN and HTM classifiers. It also includes 
+    /// a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
     /// </summary>
     [TestClass]
     public class SpatialPoolerInputReconstruction
     {
+        /// <summary>
+        /// Runs the input reconstruction experiment by initializing necessary components,
+        /// training the Spatial Pooler, and performing reconstruction using KNN and HTM classifiers.
+        /// It also evaluates the reconstruction accuracy and plots the results for comparison.
+        /// </summary>
         [TestMethod]
         [TestCategory("Experiment")]
         public void RunExperiment()
@@ -70,6 +77,11 @@ namespace NeoCortexApi.Experiments
             RunReconstructionExperiment(sp, encoder, inputValues);
         }
 
+        /// <summary>
+        /// Trains the Spatial Pooler by initializing its components, running a learning phase, 
+        /// and iterating through a predefined number of cycles to achieve stable representation 
+        /// of the input patterns. It logs the training cycle details and measures the training time.
+        /// </summary>
         private static SpatialPooler TrainSpatialPooler(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
             var mem = new Connections(cfg);
@@ -112,6 +124,11 @@ namespace NeoCortexApi.Experiments
             return sp;
         }
 
+        /// <summary>
+        /// Runs the reconstruction experiment by training KNN and HTM classifiers using input values,
+        /// making predictions for each input, and comparing the reconstructed inputs' similarity 
+        /// to the original inputs. The reconstruction results are displayed in the console, and a plot is generated.
+        /// </summary>
         private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
             KNeighborsClassifier<string, string> knnClassifier = new();
@@ -158,6 +175,10 @@ namespace NeoCortexApi.Experiments
             PlotResults(inputValues, knnPredictions, htmPredictions);
         }
 
+        /// <summary>
+        /// Logs the Sparse Distributed Representation (SDR) output for each input at each cycle,
+        /// displaying the active columns and cycle details. Only the first 20 active columns are shown.
+        /// </summary>
         private static void LogSDROutput(int cycle, double input, object sdr)
         {
             var activeCols = sdr as int[] ?? Array.Empty<int>();
@@ -165,6 +186,10 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine($"[cycle={cycle:D4}, i={input:F1}, cols={activeCols.Length}] SDR: {sdrString}, ...");
         }
 
+        /// <summary>
+        /// Plots the reconstruction results by creating a scatter plot comparing the original input values 
+        /// with the reconstructed predictions from both KNN and HTM classifiers. The plot is saved to the desktop.
+        /// </summary>
         private static void PlotResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions)
         {
             var plot = new Plot();
@@ -175,9 +200,30 @@ namespace NeoCortexApi.Experiments
             plot.YLabel("Predictions");
             plot.Axes.AutoScale();
 
+            // Method to save the plot, cross-platform compatible
+            SavePlot(plot);
+        }
+
+        /// <summary>
+        /// Saves the generated plot to the desktop in a cross-platform compatible way.
+        /// The plot is saved as "ReconstructionPlot.png" with specified dimensions.
+        /// </summary>
+        private static void SavePlot(Plot plot)
+        {
             string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ReconstructionPlot.png");
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"Plot saved at: {savePath}");
+        }
+
+        /// <summary>
+        /// Cosine Similarity calculation between two vectors.
+        /// </summary>
+        private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
+        {
+            double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
+            double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
+            double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
+            return dotProduct / (magnitudeA * magnitudeB);
         }
     }
 }
