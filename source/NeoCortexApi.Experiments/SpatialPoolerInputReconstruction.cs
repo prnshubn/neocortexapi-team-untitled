@@ -209,7 +209,7 @@ namespace NeoCortexApi.Experiments
                 var knnPrediction = knnClassifier.GetPredictedInputValues(cellList[input])[0];
                 var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
                 
-                // This is done because HTM provides Similarity value between 0 - 100
+                // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
                 var htmNormaLizedSimilarity = htmPrediction.Similarity / 100;
                 
                 Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
@@ -219,7 +219,7 @@ namespace NeoCortexApi.Experiments
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
             }
-
+            
             PlotResults(inputs, knnPredictions, htmPredictions);
         }
 
@@ -243,13 +243,13 @@ namespace NeoCortexApi.Experiments
 
         /// <summary>
         /// Saves the generated plot to the desktop in a cross-platform compatible way.
-        /// The plot is saved as "ReconstructionPlot.png" with specified dimensions.
+        /// The plot is saved as "ScalarInputReconstructionPlot.png" with specified dimensions.
         /// </summary>
         private static void SavePlot(Plot plot)
         {
             string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ScalarInputReconstructionPlot.png");
             plot.Save(savePath, 600, 600);
-            Console.WriteLine($"Plot saved at: {savePath}");
+            Console.WriteLine($"\nPlot saved at: {savePath}");
         }
 
         /// <summary>
