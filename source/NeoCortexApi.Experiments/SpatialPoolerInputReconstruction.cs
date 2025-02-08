@@ -186,10 +186,10 @@ namespace NeoCortexApi.Experiments
             {
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
-                
-                // Converting the int[] to Cell[] because the Learn method that as input
+
+                // Converting the int[] to Cell[] because the Learn method requires that as input
                 var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
-                
+
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 
@@ -207,25 +207,25 @@ namespace NeoCortexApi.Experiments
             
             // Shuffling the input List - randomizing the order
             inputs = inputs.OrderBy(_ => random.Next()).ToList();
-            
+
             foreach (var input in inputs)
             {
                 Console.WriteLine($"\nInput: {input.ToString("F", CultureInfo.InvariantCulture)}");
 
                 var knnPrediction = knnClassifier.GetPredictedInputValues(cellList[input])[0];
                 var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
-                
+
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
                 var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
-                
+
                 Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
                 Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
-                
+
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
             }
-            
+
             PlotResults(inputs, knnPredictions, htmPredictions);
         }
 
