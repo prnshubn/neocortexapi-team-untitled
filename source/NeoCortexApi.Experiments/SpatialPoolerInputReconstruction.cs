@@ -115,7 +115,7 @@ namespace NeoCortexApi.Experiments
             // Will hold the similarity of SDKk and SDRk-1 fro every input
             Dictionary<double, double> prevSimilarity = new ();
             
-            // Initiaize start similarity to zero.
+            // Initialize start similarity to zero.
             foreach (var input in inputs)
             {
                 prevSimilarity.Add(input, 0.0);
@@ -148,8 +148,14 @@ namespace NeoCortexApi.Experiments
                     prevSimilarity[input] = similarity;
                 }
 
-                if (isInStableState) numStableCycles++;
-                if (numStableCycles > 5) break;
+                if (isInStableState)
+                {
+                    numStableCycles++;
+                }
+                if (numStableCycles > 5)
+                {
+                    break;
+                }
             }
 
             stopwatch.Stop();
@@ -210,10 +216,10 @@ namespace NeoCortexApi.Experiments
                 var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
                 
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
-                var htmNormaLizedSimilarity = htmPrediction.Similarity / 100;
+                var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
                 
                 Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmNormaLizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
                 
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
@@ -230,12 +236,16 @@ namespace NeoCortexApi.Experiments
         private static void PlotResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions)
         {
             var plot = new Plot();
-            plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).Label = "KNN Predictions";
-            plot.Add.Scatter(inputs.ToArray(), htmPredictions.ToArray()).Label = "HTM Predictions";
+            plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).LegendText = "KNN Predictions";
+            plot.Add.Scatter(inputs.ToArray(), htmPredictions.ToArray()).LegendText = "HTM Predictions";
+
             plot.Title("Prediction Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Predictions");
             plot.Axes.AutoScale();
+
+            // Ensure the legend is visible
+            plot.ShowLegend();  
 
             // Method to save the plot, cross-platform compatible
             SavePlot(plot);
