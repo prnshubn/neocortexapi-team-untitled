@@ -242,14 +242,30 @@ namespace NeoCortexApi.Experiments
             plot.Title("Prediction Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Predictions");
-            plot.Axes.AutoScale();
+
+            // Ensure lists are not empty
+            if (!inputs.Any() || !knnPredictions.Any() || !htmPredictions.Any())
+            {
+                Console.WriteLine("Error: One or more input lists are empty.");
+                return;
+            }
+
+            // Calculate min/max with margin
+            double ymin = Math.Min(knnPredictions.Min(), htmPredictions.Min());
+            double ymax = Math.Max(knnPredictions.Max(), htmPredictions.Max());
+            double margin = (ymax - ymin) * 0.1; // 10% margin
+
+            // Set axis limits properly
+            plot.Axes.SetLimits(inputs.Min(), inputs.Max(), ymin - margin, ymax + margin);
 
             // Ensure the legend is visible
-            plot.ShowLegend();  
+            plot.ShowLegend();
 
-            // Method to save the plot, cross-platform compatible
+            // Save the plot
             SavePlot(plot);
         }
+
+
 
         /// <summary>
         /// Saves the generated plot to the desktop in a cross-platform compatible way.
