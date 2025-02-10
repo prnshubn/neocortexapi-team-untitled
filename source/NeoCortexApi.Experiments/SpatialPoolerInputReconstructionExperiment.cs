@@ -622,7 +622,9 @@ namespace NeoCortexApi.Experiments
                 dir = dir.Parent;
             }
     
-            
+            // Fallback if not found
+            Console.WriteLine("Warning: Project root not found. Using desktop instead.");
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
     }
 }
