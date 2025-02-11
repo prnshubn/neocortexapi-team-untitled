@@ -45,7 +45,9 @@ namespace NeoCortexApi.Experiments
     [TestClass]
     public class ExperimentRunner
     {
-        
+        /// <summary>
+        ///    Runs the experiment.
+        /// </summary>
         [TestMethod]
         public void run()
         {
