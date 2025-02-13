@@ -169,30 +169,13 @@ namespace NeoCortexApi.Experiments
             var plot = new Plot();
             plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).LegendText = "KNN Predictions";
             plot.Add.Scatter(inputs.ToArray(), htmPredictions.ToArray()).LegendText = "HTM Predictions";
-
-            plot.Title("Prediction Comparison");
+            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.ToArray()).LegendText = "KNN Similarity";
+            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.ToArray()).LegendText = "HTM Similarity";
+            plot.Title("Prediction and Similarity Comparison");
             plot.XLabel("Input Values");
-            plot.YLabel("Predictions");
+            plot.YLabel("Predictions & Similarity");
+            plot.Axes.AutoScale();
 
-            // Ensure lists are not empty
-            if (!inputs.Any() || !knnPredictions.Any() || !htmPredictions.Any())
-            {
-                Console.WriteLine("Error: One or more input lists are empty.");
-                return;
-            }
-
-            // Calculate min/max with margin
-            double ymin = Math.Min(knnPredictions.Min(), htmPredictions.Min());
-            double ymax = Math.Max(knnPredictions.Max(), htmPredictions.Max());
-            double margin = (ymax - ymin) * 0.1; // 10% margin
-
-            // Set axis limits properly
-            plot.Axes.SetLimits(inputs.Min(), inputs.Max(), ymin - margin, ymax + margin);
-
-            // Ensure the legend is visible
-            plot.ShowLegend();
-
-            // Save the plot
             SavePlot(plot);
         }
 
@@ -204,8 +187,12 @@ namespace NeoCortexApi.Experiments
         }
 
         /// <summary>
-        /// Cosine Similarity calculation between two vectors.
+        /// Calculates the cosine similarity between two vectors represented as lists of doubles.
+        /// The cosine similarity measures the cosine of the angle between the two vectors.
         /// </summary>
+        /// <param name="vectorA">The first vector as a list of doubles.</param>
+        /// <param name="vectorB">The second vector as a list of doubles.</param>
+        /// <returns>The cosine similarity between the two vectors as a double.</returns>
         private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
         {
             double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
