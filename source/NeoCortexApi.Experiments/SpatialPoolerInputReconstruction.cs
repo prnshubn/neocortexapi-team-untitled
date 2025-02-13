@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,17 +11,10 @@ using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
 using NeoCortexApi.Experiments;
 using NeoCortexApi.Network;
-using NeoCortexApi.Utility;
 using ScottPlot;
 
 namespace NeoCortexApi.Experiments
 {
-    /// <summary>
-    /// Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN & HTM).
-    /// This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating 
-    /// the performance of reconstructed inputs using both the KNN and HTM classifiers. It also includes 
-    /// a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
-    /// </summary>
     [TestClass]
     public class SpatialPoolerInputReconstruction
     {
@@ -33,17 +27,14 @@ namespace NeoCortexApi.Experiments
         [TestCategory("Experiment")]
         public void RunExperiment()
         {
-            Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstruction)}");
-            
-            // Max value for input
+            Console.WriteLine("Running Spatial Pooler Input Reconstruction Experiment...");
             double max = 5;
-            
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
             int inputBits = 200;
             int numColumns = 1024;
 
-            HtmConfig cfg = new(new int[] { inputBits }, new int[] { numColumns })
+            HtmConfig cfg = new(new[] { inputBits }, new[] { numColumns })
             {
                 CellsPerColumn = 10,
                 MaxBoost = maxBoost,
@@ -59,7 +50,6 @@ namespace NeoCortexApi.Experiments
                 StimulusThreshold = 10,
             };
 
-            // Scalar Encoder settings
             Dictionary<string, object> settings = new()
             {
                 { "W", 21 },
@@ -75,10 +65,7 @@ namespace NeoCortexApi.Experiments
             EncoderBase encoder = new ScalarEncoder(settings);
             List<double> inputValues = Enumerable.Range(0, (int)max).Select(i => (double)i).ToList();
 
-            // Train the Spatial Pooler
             var sp = TrainSpatialPooler(cfg, encoder, inputValues);
-
-            // Perform Reconstruction Experiment
             RunReconstructionExperiment(sp, encoder, inputValues);
         }
 
@@ -93,21 +80,21 @@ namespace NeoCortexApi.Experiments
             bool isInStableState = false;
             int numStableCycles = 0;
 
-            HomeostaticPlasticityController hpa = new(mem, inputs.Count * 40,
-                (isStable, numPatterns, actColAvg, seenInputs) =>
-                {
-                    isInStableState = isStable;
-                    Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
-                });
+            IEnumerable inputValues = null;
+            // HomeostaticPlasticityController hpa = new(mem, inputValues * 40,
+            //     (isStable, _, _, _) =>
+            //     {
+            //         isInStableState = isStable;
+            //         Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
+            //     });
 
             SpatialPooler sp = new(hpa);
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
-            CortexLayer<object, object> cortexLayer = new ("L1");
+            CortexLayer<object, object> cortexLayer = new("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
             cortexLayer.HtmModules.Add("sp", sp);
 
-            // Max iterations (cycles) for the SP learning process
             int maxSPLearningCycles = 1000;
             
             // Will hold the SDR of every input
@@ -129,38 +116,20 @@ namespace NeoCortexApi.Experiments
             {
                 Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
                 
-                // This trains the layer on input pattern
-                foreach (var input in inputs)
+                foreach (var input in inputValues)
                 {
-                    // Learn the input pattern
-                    // Output lyrOut is the output of the last module in the layer
-                    var lyrOut = cortexLayer.Compute((object)input, true) as int[];
-
-                    // This is a general way to get the SpatialPooler result from the layer
-                    var activeColumns = cortexLayer.GetResult("sp") as int[];
-
-                    var actCols = activeColumns.OrderBy(c => c).ToArray();
-
-                    double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
-
-                    Console.WriteLine($"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
-
-                    prevActiveCols[input] = activeColumns;
-                    prevSimilarity[input] = similarity;
+                    var sdr = cortexLayer.Compute(input, true);
+                    var activeCols = sdr as int[] ?? Array.Empty<int>();
+                    string sdrString = string.Join(", ", activeCols.Take(20)); 
+                    Console.WriteLine($"[cycle={cycle:D4}, i={input:F1}, cols={activeCols.Length}] SDR: {sdrString}, ...");
                 }
 
-                if (isInStableState)
-                {
-                    numStableCycles++;
-                }
-                if (numStableCycles > 5)
-                {
-                    break;
-                }
+                if (isInStableState) numStableCycles++;
+                if (numStableCycles > 5) break;
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"\nSpatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Spatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
             return sp;
         }
 
@@ -218,15 +187,11 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnSimilarity:P2}");
                 Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmSimilarity:P2}");
             }
-            
+
+            PlotResults(inputValues, knnPredictions, htmPredictions, knnSimilarities, htmSimilarities);
         }
 
-
-        /// <summary>
-        /// Plots the reconstruction results by creating a scatter plot comparing the original input values 
-        /// with the reconstructed predictions from both KNN and HTM classifiers. The plot is saved to the desktop.
-        /// </summary>
-        private static void PlotResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions)
+        private static void PlotResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
         {
             var plot = new Plot();
             plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).LegendText = "KNN Predictions";
@@ -258,15 +223,9 @@ namespace NeoCortexApi.Experiments
             SavePlot(plot);
         }
 
-
-
-        /// <summary>
-        /// Saves the generated plot to the desktop in a cross-platform compatible way.
-        /// The plot is saved as "ScalarInputReconstructionPlot.png" with specified dimensions.
-        /// </summary>
         private static void SavePlot(Plot plot)
         {
-            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ScalarInputReconstructionPlot.png");
+            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ReconstructionPlot.png");
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
@@ -282,7 +241,8 @@ namespace NeoCortexApi.Experiments
             return dotProduct / (magnitudeA * magnitudeB);
         }
     }
-}[TestClass]
+
+    [TestClass]
 public class SpatialPoolerInputReconstructionTest
 {
     [TestMethod]
@@ -293,4 +253,4 @@ public class SpatialPoolerInputReconstructionTest
         // Further assertions and checks can be added based on the output of the experiment
     }
 }
-
+}
