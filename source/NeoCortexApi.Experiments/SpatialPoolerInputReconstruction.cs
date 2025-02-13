@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
+using NeoCortexApi.Experiments;
 using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using ScottPlot;
@@ -289,4 +290,15 @@ namespace NeoCortexApi.Experiments
             return dotProduct / (magnitudeA * magnitudeB);
         }
     }
+}[TestClass]
+public class SpatialPoolerInputReconstructionTest
+{
+    [TestMethod]
+    public void TestReconstructionAccuracy()
+    {
+        var experiment = new SpatialPoolerInputReconstruction();
+        experiment.RunExperiment();
+        // Further assertions and checks can be added based on the output of the experiment
+    }
 }
+
