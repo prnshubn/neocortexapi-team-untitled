@@ -88,20 +88,6 @@ namespace NeoCortexApi.Experiments
             cortexLayer.HtmModules.Add("sp", sp);
 
             int maxSPLearningCycles = 1000;
-            
-            // Will hold the SDR of every input
-            Dictionary<double, int[]> prevActiveCols = new ();
-
-            // Will hold the similarity of SDKk and SDRk-1 fro every input
-            Dictionary<double, double> prevSimilarity = new ();
-            
-            // Initialize start similarity to zero.
-            foreach (var input in inputs)
-            {
-                prevSimilarity.Add(input, 0.0);
-                prevActiveCols.Add(input, new int[0]);
-            }
-            
             Stopwatch stopwatch = Stopwatch.StartNew();
             
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
@@ -125,11 +111,6 @@ namespace NeoCortexApi.Experiments
             return sp;
         }
 
-        /// <summary>
-        /// Runs the reconstruction experiment by training KNN and HTM classifiers using input values,
-        /// making predictions for each input, and comparing the reconstructed inputs' similarity 
-        /// to the original inputs. The reconstruction results are displayed in the console, and a plot is generated.
-        /// </summary>
         private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
             KNeighborsClassifier<string, string> knnClassifier = new();
