@@ -169,32 +169,25 @@ namespace NeoCortexApi.Experiments
         /// making predictions for each input, and comparing the reconstructed inputs' similarity 
         /// to the original inputs. The reconstruction results are displayed in the console, and a plot is generated.
         /// </summary>
-        private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputs)
+        private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
 
-            // Clear the models from all the stored sequences
             knnClassifier.ClearState();
             htmClassifier.ClearState();
 
             Dictionary<double, Cell[]> cellList = new();
-            
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            // Train classifiers
-            foreach (var input in inputs)
+            foreach (var input in inputValues)
             {
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
-
-                // Converting the int[] to Cell[] because the Learn method requires that as input
                 var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
-
+                cellList[input] = cellArray;
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
-                
-                cellList[input] = cellArray;
             }
             
             stopwatch.Stop();
@@ -203,32 +196,31 @@ namespace NeoCortexApi.Experiments
         
             List<double> knnPredictions = new();
             List<double> htmPredictions = new();
-            
-            Random random = new ();
-            
-            // Shuffling the input List - randomizing the order
-            inputs = inputs.OrderBy(_ => random.Next()).ToList();
+            List<double> knnSimilarities = new();
+            List<double> htmSimilarities = new();
 
-            foreach (var input in inputs)
+            foreach (var input in inputValues)
             {
-                Console.WriteLine($"\nInput: {input.ToString("F", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"\nInput: {input:F1}");
 
                 var knnPrediction = knnClassifier.GetPredictedInputValues(cellList[input])[0];
                 var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
 
-                // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
-                var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
-
-                Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
-
-                // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
-            }
 
-            PlotResults(inputs, knnPredictions, htmPredictions);
+                var knnSimilarity = CalculateCosineSimilarity(new List<double> { input }, new List<double> { Double.Parse(knnPrediction.PredictedInput) });
+                var htmSimilarity = CalculateCosineSimilarity(new List<double> { input }, new List<double> { Double.Parse(htmPrediction.PredictedInput) });
+
+                knnSimilarities.Add(knnSimilarity);
+                htmSimilarities.Add(htmSimilarity);
+
+                Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnSimilarity:P2}");
+                Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmSimilarity:P2}");
+            }
+            
         }
+
 
         /// <summary>
         /// Plots the reconstruction results by creating a scatter plot comparing the original input values 
