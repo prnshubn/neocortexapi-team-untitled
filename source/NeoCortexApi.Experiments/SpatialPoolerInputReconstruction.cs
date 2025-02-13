@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,7 +8,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
-using NeoCortexApi.Experiments;
 using NeoCortexApi.Network;
 using ScottPlot;
 
@@ -69,24 +67,18 @@ namespace NeoCortexApi.Experiments
             RunReconstructionExperiment(sp, encoder, inputValues);
         }
 
-        /// <summary>
-        /// Trains the Spatial Pooler by initializing its components, running a learning phase, 
-        /// and iterating through a predefined number of cycles to achieve stable representation 
-        /// of the input patterns. It logs the training cycle details and measures the training time.
-        /// </summary>
-        private static SpatialPooler TrainSpatialPooler(HtmConfig cfg, EncoderBase encoder, List<double> inputs)
+        private static SpatialPooler TrainSpatialPooler(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
             var mem = new Connections(cfg);
             bool isInStableState = false;
             int numStableCycles = 0;
 
-            IEnumerable inputValues = null;
-            // HomeostaticPlasticityController hpa = new(mem, inputValues * 40,
-            //     (isStable, _, _, _) =>
-            //     {
-            //         isInStableState = isStable;
-            //         Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
-            //     });
+            HomeostaticPlasticityController hpa = new(mem, inputValues.Count * 40,
+               (isStable, _, _, _) =>
+               {
+                   isInStableState = isStable;
+                   Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
+               });
 
             SpatialPooler sp = new(hpa);
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
