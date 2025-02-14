@@ -74,14 +74,15 @@ namespace NeoCortexApi.Experiments
             int numStableCycles = 0;
 
             HomeostaticPlasticityController hpa = new(mem, inputValues.Count * 40,
-               (isStable, _, _, _) =>
-               {
-                   isInStableState = isStable;
-                   Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
-               });
+                (isStable, _, _, _) =>
+                {
+                    isInStableState = isStable;
+                    Console.WriteLine(isStable ? "STABLE STATE REACHED" : "INSTABLE STATE");
+                });
 
             SpatialPooler sp = new(hpa);
-            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
+            sp.Init(mem,
+                new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
             CortexLayer<object, object> cortexLayer = new("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
@@ -89,17 +90,18 @@ namespace NeoCortexApi.Experiments
 
             int maxSPLearningCycles = 1000;
             Stopwatch stopwatch = Stopwatch.StartNew();
-            
+
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
                 Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
-                
+
                 foreach (var input in inputValues)
                 {
                     var sdr = cortexLayer.Compute(input, true);
                     var activeCols = sdr as int[] ?? Array.Empty<int>();
-                    string sdrString = string.Join(", ", activeCols.Take(20)); 
-                    Console.WriteLine($"[cycle={cycle:D4}, i={input:F1}, cols={activeCols.Length}] SDR: {sdrString}, ...");
+                    string sdrString = string.Join(", ", activeCols.Take(20));
+                    Console.WriteLine(
+                        $"[cycle={cycle:D4}, i={input:F1}, cols={activeCols.Length}] SDR: {sdrString}, ...");
                 }
 
                 if (isInStableState) numStableCycles++;
@@ -131,11 +133,11 @@ namespace NeoCortexApi.Experiments
                 knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
                 htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
             }
-            
+
             stopwatch.Stop();
             Console.WriteLine("\nClassifier Training Complete");
             Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
-        
+
             List<double> knnPredictions = new();
             List<double> htmPredictions = new();
             List<double> knnSimilarities = new();
@@ -151,37 +153,53 @@ namespace NeoCortexApi.Experiments
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
 
-                var knnSimilarity = CalculateCosineSimilarity(new List<double> { input }, new List<double> { Double.Parse(knnPrediction.PredictedInput) });
-                var htmSimilarity = CalculateCosineSimilarity(new List<double> { input }, new List<double> { Double.Parse(htmPrediction.PredictedInput) });
+                var knnSimilarity = CalculateCosineSimilarity(new List<double> { input },
+                    new List<double> { Double.Parse(knnPrediction.PredictedInput) });
+                var htmSimilarity = CalculateCosineSimilarity(new List<double> { input },
+                    new List<double> { Double.Parse(htmPrediction.PredictedInput) });
 
                 knnSimilarities.Add(knnSimilarity);
                 htmSimilarities.Add(htmSimilarity);
 
-                Console.WriteLine($"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnSimilarity:P2}");
-                Console.WriteLine($"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmSimilarity:P2}");
+                Console.WriteLine(
+                    $"KNN - Reconstructed: {knnPrediction.PredictedInput}, Similarity: {knnSimilarity:P2}");
+                Console.WriteLine(
+                    $"HTM - Reconstructed: {htmPrediction.PredictedInput}, Similarity: {htmSimilarity:P2}");
             }
 
-            PlotResults(inputValues, knnPredictions, htmPredictions, knnSimilarities, htmSimilarities);
+            PlotReconstructionResults(inputValues, knnPredictions, htmPredictions);
+            PlotSimilarityResults(inputValues, knnSimilarities, htmSimilarities);
         }
 
-        private static void PlotResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
+        private static void PlotReconstructionResults(List<double> inputs, List<double> knnPredictions,
+            List<double> htmPredictions)
         {
             var plot = new Plot();
             plot.Add.Scatter(inputs.ToArray(), knnPredictions.ToArray()).LegendText = "KNN Predictions";
             plot.Add.Scatter(inputs.ToArray(), htmPredictions.ToArray()).LegendText = "HTM Predictions";
-            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.ToArray()).LegendText = "KNN Similarity";
-            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.ToArray()).LegendText = "HTM Similarity";
-            plot.Title("Prediction and Similarity Comparison");
+            plot.Title("Reconstruction Predictions");
             plot.XLabel("Input Values");
-            plot.YLabel("Predictions & Similarity");
+            plot.YLabel("Predictions");
             plot.Axes.AutoScale();
-
-            SavePlot(plot);
+            SavePlot(plot, "ReconstructionPlot.png");
         }
 
-        private static void SavePlot(Plot plot)
+        private static void PlotSimilarityResults(List<double> inputs, List<double> knnSimilarities,
+            List<double> htmSimilarities)
         {
-            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ReconstructionPlot.png");
+            var plot = new Plot();
+            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.ToArray()).LegendText = "KNN Similarity";
+            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.ToArray()).LegendText = "HTM Similarity";
+            plot.Title("Similarity Comparison");
+            plot.XLabel("Input Values");
+            plot.YLabel("Similarity");
+            plot.Axes.AutoScale();
+            SavePlot(plot, "SimilarityPlot.png");
+        }
+
+        private static void SavePlot(Plot plot, string fileName)
+        {
+            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
@@ -190,9 +208,6 @@ namespace NeoCortexApi.Experiments
         /// Calculates the cosine similarity between two vectors represented as lists of doubles.
         /// The cosine similarity measures the cosine of the angle between the two vectors.
         /// </summary>
-        /// <param name="vectorA">The first vector as a list of doubles.</param>
-        /// <param name="vectorB">The second vector as a list of doubles.</param>
-        /// <returns>The cosine similarity between the two vectors as a double.</returns>
         private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
         {
             double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
