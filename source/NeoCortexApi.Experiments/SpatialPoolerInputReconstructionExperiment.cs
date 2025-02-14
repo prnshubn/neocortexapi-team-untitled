@@ -583,9 +583,9 @@ namespace NeoCortexApi.Experiments
         /// <param name="fileName"></param>
         private void SavePlot(Plot plot, string fileName, double max, string path)
         {
-            const int baseHeight = 60;
-            const int minWidth = 60;
-            const int maxWidth = 12;
+            const int baseHeight = 600;
+            const int minWidth = 600;
+            const int maxWidth = 1200;
     
             // Calculate proportional width between 600-1200 based on max input value
             double widthFactor = Math.Clamp((max - 10) / (100 - 10), 0, 1);
