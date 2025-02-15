@@ -170,7 +170,19 @@ namespace NeoCortexApi.Experiments
             PlotReconstructionResults(inputValues, knnPredictions, htmPredictions);
             PlotSimilarityResults(inputValues, knnSimilarities, htmSimilarities);
         }
-
+        
+        /// <summary>
+        /// Calculates the cosine similarity between two vectors represented as lists of doubles.
+        /// The cosine similarity measures the cosine of the angle between the two vectors.
+        /// </summary>
+        private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
+        {
+            double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
+            double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
+            double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
+            return dotProduct / (magnitudeA * magnitudeB);
+        }
+        
         private static void PlotReconstructionResults(List<double> inputs, List<double> knnPredictions,
             List<double> htmPredictions)
         {
@@ -204,17 +216,7 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
 
-        /// <summary>
-        /// Calculates the cosine similarity between two vectors represented as lists of doubles.
-        /// The cosine similarity measures the cosine of the angle between the two vectors.
-        /// </summary>
-        private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
-        {
-            double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
-            double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
-            double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
-            return dotProduct / (magnitudeA * magnitudeB);
-        }
+       
     }
 
     [TestClass]
