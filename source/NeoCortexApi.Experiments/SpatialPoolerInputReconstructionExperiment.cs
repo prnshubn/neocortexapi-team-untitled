@@ -13,8 +13,7 @@ using ScottPlot;
 
 namespace NeoCortexApi.Experiments
 {
-    [TestClass]
-    public class SpatialPoolerInputReconstruction
+    public class SpatialPoolerInputReconstructionExperiment
     {
         /// <summary>
         /// Runs the input reconstruction experiment by initializing necessary components,
@@ -25,7 +24,7 @@ namespace NeoCortexApi.Experiments
         [TestCategory("Experiment")]
         public void RunExperiment()
         {
-            Console.WriteLine("Running Spatial Pooler Input Reconstruction Experiment...");
+            Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
             double max = 5;
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
@@ -218,16 +217,4 @@ namespace NeoCortexApi.Experiments
 
        
     }
-
-    [TestClass]
-public class SpatialPoolerInputReconstructionTest
-{
-    [TestMethod]
-    public void TestReconstructionAccuracy()
-    {
-        var experiment = new SpatialPoolerInputReconstruction();
-        experiment.RunExperiment();
-        // Further assertions and checks can be added based on the output of the experiment
-    }
-}
 }
