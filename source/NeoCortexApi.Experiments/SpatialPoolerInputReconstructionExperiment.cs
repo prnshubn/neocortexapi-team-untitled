@@ -570,7 +570,7 @@ namespace NeoCortexApi.Experiments
             plot.Title(datasetType + " - Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
-            plot.Axes.SetLimits(0, max+1, 0, 100);
+            plot.Axes.SetLimits(0, max+1, 0, 105);
 
             this.SavePlot(plot, datasetType + "_SimilarityPlot.png", max, path);
         }
