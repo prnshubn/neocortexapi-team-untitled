@@ -35,7 +35,7 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
 
             // Max value for input
-            double max = 5;
+            double max = 50;
 
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
@@ -173,6 +173,16 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
+            Random random = new();
+
+            // Shuffle the input List - randomizing the order
+            inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
+            
+            // Split data into training (80%) and testing (20%)
+            var splitIdx = (int)(inputValues.Count * 0.8);
+            var trainData = inputValues.Take(splitIdx).ToList();
+            var testData = inputValues.Skip(splitIdx).ToList();
+            
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
 
@@ -180,23 +190,20 @@ namespace NeoCortexApi.Experiments
             knnClassifier.ClearState();
             htmClassifier.ClearState();
 
-            Dictionary<double, Cell[]> cellList = new();
-
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            // Train classifiers
-            foreach (var input in inputValues)
+            // Train classifiers on TRAINING DATA
+            foreach (var input in trainData)
             {
-                var inpSdr = encoder.Encode(input);
-                var actCols = sp.Compute(inpSdr, false);
+                // Generate SDR for TRAINING DATA using the trained SP
+                var sdr = encoder.Encode(input);
+                var actCols = sp.Compute(sdr, false);
 
-                // Converting the int[] to Cell[] because the Learn method requires�that�as�input
-                var cellArray = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+                // Converting the int[] to Cell[] because we need Cell[] format for learning
+                var cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
 
-                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
-                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cellArray);
-
-                cellList[input] = cellArray;
+                knnClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
+                htmClassifier.Learn(input.ToString("F2", CultureInfo.InvariantCulture), cells);
             }
 
             stopwatch.Stop();
@@ -208,18 +215,22 @@ namespace NeoCortexApi.Experiments
             List<double> knnSimilarities = new();
             List<double> htmSimilarities = new();
 
-            Random random = new();
-
-            // Shuffling the input List - randomizing the order
-            inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
-
-            foreach (var input in inputValues)
+            // Test on TEST DATA
+            foreach (var input in testData)
             {
                 Console.WriteLine($"\nInput: {input.ToString("F", CultureInfo.InvariantCulture)}");
 
-                var knnPrediction = knnClassifier.GetPredictedInputValues(cellList[input])[0];
-                var htmPrediction = htmClassifier.GetPredictedInputValues(cellList[input])[0];
+                // Generate SDR for TEST DATA using the trained SP
+                var testSdr = encoder.Encode(input);
+                var testActCols = sp.Compute(testSdr, false);
+                
+                // Converting the int[] to Cell[] because we need Cell[] format for reconstruction
+                var testCells = testActCols.Select(idx => new Cell { Index = idx }).ToArray();
 
+                // Get predictions using the test SDR
+                var knnPrediction = knnClassifier.GetPredictedInputValues(testCells)[0];
+                var htmPrediction = htmClassifier.GetPredictedInputValues(testCells)[0];
+                
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
                 var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
 
@@ -240,20 +251,8 @@ namespace NeoCortexApi.Experiments
                 htmSimilarities.Add(htmSimilarity);
             }
 
-            PlotReconstructionResults(inputValues, knnPredictions, htmPredictions);
-            PlotSimilarityResults(inputValues, knnSimilarities, htmSimilarities);
-        }
-
-        /// <summary>
-        /// Calculates the cosine similarity between two vectors represented as lists of doubles.
-        /// The cosine similarity measures the cosine of the angle between the two vectors.
-        /// </summary>
-        private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
-        {
-            double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
-            double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
-            double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
-            return dotProduct / (magnitudeA * magnitudeB);
+            PlotReconstructionResults(testData, knnPredictions, htmPredictions);
+            PlotSimilarityResults(testData, knnSimilarities, htmSimilarities);
         }
 
         /// <summary>
@@ -289,6 +288,18 @@ namespace NeoCortexApi.Experiments
             plot.Axes.AutoScale();
             SavePlot(plot, "SimilarityPlot.png");
         }
+        
+        /// <summary>
+        /// Calculates the cosine similarity between two vectors represented as lists of doubles.
+        /// The cosine similarity measures the cosine of the angle between the two vectors.
+        /// </summary>
+        private static double CalculateCosineSimilarity(List<double> vectorA, List<double> vectorB)
+        {
+            double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
+            double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
+            double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
+            return dotProduct / (magnitudeA * magnitudeB);
+        }
 
         /// <summary>
         /// Saves the generated plot to the desktop in a cross-platform compatible way.
@@ -300,6 +311,5 @@ namespace NeoCortexApi.Experiments
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
-
     }
 }
