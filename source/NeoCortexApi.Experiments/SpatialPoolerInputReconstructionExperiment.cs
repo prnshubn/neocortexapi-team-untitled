@@ -298,6 +298,14 @@ namespace NeoCortexApi.Experiments
             double dotProduct = vectorA.Zip(vectorB, (a, b) => a * b).Sum();
             double magnitudeA = Math.Sqrt(vectorA.Sum(a => a * a));
             double magnitudeB = Math.Sqrt(vectorB.Sum(b => b * b));
+    
+            // Handle zero magnitude edge cases
+            if (magnitudeA == 0 || magnitudeB == 0)
+            {
+                // If either vector has zero magnitude, cosine similarity is undefined, we return 0.0
+                return 0.0;
+            }
+
             return dotProduct / (magnitudeA * magnitudeB);
         }
 
