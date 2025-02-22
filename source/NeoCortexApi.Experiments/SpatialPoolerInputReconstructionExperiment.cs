@@ -263,6 +263,10 @@ namespace NeoCortexApi.Experiments
 
                 var knnSimilarity = knnPrediction.Similarity*100;
                 var htmSimilarity = htmPrediction.Similarity;
+
+                // Add per-input comparison
+                string betterClassifier = knnSimilarity > htmSimilarity ? "KNN" : "HTM";
+                Console.WriteLine($"{betterClassifier} performed better for this input");
                 
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
@@ -294,7 +298,7 @@ namespace NeoCortexApi.Experiments
             plot.Title("Reconstruction Predictions");
             plot.XLabel("Input Values");
             plot.YLabel("Predictions");
-            plot.Axes.AutoScale();
+            plot.Axes.SetLimits(0, 20, 0, 20); // Set axes limits
             SavePlot(plot, "ReconstructionPlot.png");
         }
 
@@ -312,8 +316,8 @@ namespace NeoCortexApi.Experiments
             plot.Add.Scatter(inputs.ToArray(), htmSimilarities.ToArray()).LegendText = "HTM Similarity";
             plot.Title("Similarity Comparison");
             plot.XLabel("Input Values");
-            plot.YLabel("Similarity");
-            plot.Axes.AutoScale();
+            plot.YLabel("Similarity (%)");
+            plot.Axes.SetLimits(0, 20, 0, 100); // Fixed X-axis to match reconstruction plot
             SavePlot(plot, "SimilarityPlot.png");
         }
 
