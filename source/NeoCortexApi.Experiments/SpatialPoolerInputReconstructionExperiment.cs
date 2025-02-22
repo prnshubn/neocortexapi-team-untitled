@@ -261,7 +261,7 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine($"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
                 Console.WriteLine($"HTM - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
 
-                var knnSimilarity = knnPrediction.Similarity*100;
+                var knnSimilarity = knnPrediction.Similarity;
                 var htmSimilarity = htmPrediction.Similarity;
 
                 // Add per-input comparison
@@ -317,7 +317,7 @@ namespace NeoCortexApi.Experiments
             plot.Title("Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
-            plot.Axes.SetLimits(0, 20, 0, 100); // Fixed X-axis to match reconstruction plot
+            plot.Axes.SetLimits(0, 20, 0, 20); // Fixed X-axis to match reconstruction plot
             SavePlot(plot, "SimilarityPlot.png");
         }
 
@@ -334,29 +334,33 @@ namespace NeoCortexApi.Experiments
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
-        
+
         /// <summary>
         /// Analyzes and discusses the results of the reconstruction experiment.
         /// </summary>
         private static void AnalyzeResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
         {
-            // New metrics using previously unused parameters
+            // Calculate Mean Absolute Error (MAE)
             double knnMAE = inputs.Zip(knnPredictions, (a, p) => Math.Abs(a - p)).Average();
             double htmMAE = inputs.Zip(htmPredictions, (a, p) => Math.Abs(a - p)).Average();
-            
+
+            // Calculate average similarity (convert to percentage)
+            double knnAvgSimilarity = knnSimilarities.Average() * 100;
+            double htmAvgSimilarity = htmSimilarities.Average();
+
             Console.WriteLine("\nResults Analysis:");
-            Console.WriteLine($"Average KNN Similarity: {knnSimilarities.Average():P2}");
-            Console.WriteLine($"Average HTM Similarity: {htmSimilarities.Average():P2}");
+            Console.WriteLine($"Average KNN Similarity: {knnAvgSimilarity:F2}%");
+            Console.WriteLine($"Average HTM Similarity: {htmAvgSimilarity:F2}%");
             Console.WriteLine($"KNN Mean Absolute Error: {knnMAE:F2}");
             Console.WriteLine($"HTM Mean Absolute Error: {htmMAE:F2}");
 
             // Enhanced comparison
-            bool htmBetter = htmSimilarities.Average() > knnSimilarities.Average();
-            Console.WriteLine(htmBetter ? 
-                "HTM performed better than KNN in reconstructing inputs." : 
+            bool htmBetter = htmAvgSimilarity > knnAvgSimilarity;
+            Console.WriteLine(htmBetter ?
+                "HTM performed better than KNN in reconstructing inputs." :
                 "KNN performed better than HTM in reconstructing inputs.");
         }
-        
+
         /// <summary>
         /// Calculates the Absolute Percentage Similarity between the Original Input
         /// and the Reconstructed Input.
