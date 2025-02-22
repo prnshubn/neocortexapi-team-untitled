@@ -263,7 +263,7 @@ namespace NeoCortexApi.Experiments
 
                 var knnSimilarity = knnPrediction.Similarity*100;
                 var htmSimilarity = htmPrediction.Similarity;
-
+                
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
@@ -273,6 +273,9 @@ namespace NeoCortexApi.Experiments
 
             PlotReconstructionResults(testDataSet, knnPredictions, htmPredictions);
             PlotSimilarityResults(testDataSet, knnSimilarities, htmSimilarities);
+
+            // Analyze the results
+            AnalyzeResults(testDataSet, knnPredictions, htmPredictions, knnSimilarities, htmSimilarities);
         }
 
         /// <summary>
@@ -327,6 +330,23 @@ namespace NeoCortexApi.Experiments
             plot.Save(savePath, 600, 600);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
+        
+        /// <summary>
+        /// Analyzes and discusses the results of the reconstruction experiment.
+        /// </summary>
+        private static void AnalyzeResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
+        {
+            // New metrics using previously unused parameters
+            double knnMAE = inputs.Zip(knnPredictions, (a, p) => Math.Abs(a - p)).Average();
+            double htmMAE = inputs.Zip(htmPredictions, (a, p) => Math.Abs(a - p)).Average();
+            
+            Console.WriteLine("\nResults Analysis:");
+            Console.WriteLine($"Average KNN Similarity: {knnSimilarities.Average():P2}");
+            Console.WriteLine($"Average HTM Similarity: {htmSimilarities.Average():P2}");
+            Console.WriteLine($"KNN Mean Absolute Error: {knnMAE:F2}");
+            Console.WriteLine($"HTM Mean Absolute Error: {htmMAE:F2}");
+
+           }
         
         /// <summary>
         /// Calculates the Absolute Percentage Similarity between the Original Input
