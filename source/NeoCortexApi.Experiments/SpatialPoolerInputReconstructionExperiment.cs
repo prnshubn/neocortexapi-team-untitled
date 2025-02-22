@@ -312,8 +312,8 @@ namespace NeoCortexApi.Experiments
         private static void PlotSimilarityResults(List<double> inputs, List<double> knnSimilarities, List<double> htmSimilarities)
         {
             var plot = new Plot();
-            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.ToArray()).LegendText = "KNN Similarity";
-            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.ToArray()).LegendText = "HTM Similarity";
+            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.Select(s => s * 100).ToArray()).LegendText = "KNN Similarity";
+            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.Select(s => s * 100).ToArray()).LegendText = "HTM Similarity";
             plot.Title("Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
@@ -350,7 +350,12 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine($"KNN Mean Absolute Error: {knnMAE:F2}");
             Console.WriteLine($"HTM Mean Absolute Error: {htmMAE:F2}");
 
-           }
+            // Enhanced comparison
+            bool htmBetter = htmSimilarities.Average() > knnSimilarities.Average();
+            Console.WriteLine(htmBetter ? 
+                "HTM performed better than KNN in reconstructing inputs." : 
+                "KNN performed better than HTM in reconstructing inputs.");
+        }
         
         /// <summary>
         /// Calculates the Absolute Percentage Similarity between the Original Input
