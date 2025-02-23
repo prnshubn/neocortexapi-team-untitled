@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
+using NeoCortexApi.Experiments;
 using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using ScottPlot;
@@ -184,12 +185,12 @@ namespace NeoCortexApi.Experiments
         {
             if (sp == null) throw new ArgumentNullException(nameof(sp));
             if (encoder == null) throw new ArgumentNullException(nameof(encoder));
-            if (inputValues == null || !inputValues.Any()) 
+            if (inputValues == null || !inputValues.Any())
                 throw new ArgumentException("Input values cannot be null or empty", nameof(inputValues));
 
             double min = inputValues.Min();
             double max = inputValues.Max();
-            
+
             // As we are dividing the inout set into two parts for training and testing,
             // there could a bias the classifiers toward lower values and make the test set
             // unrepresentative of the full range. Hence, we are shuffling the list.
@@ -197,12 +198,12 @@ namespace NeoCortexApi.Experiments
 
             // Shuffle the input List
             inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
-            
+
             // Split data into training (80%) and testing (20%)
             var splitIdx = (int)(inputValues.Count * 0.8);
             var trainDataSet = inputValues.Take(splitIdx).ToList();
             var testDataSet = inputValues.Skip(splitIdx).ToList();
-            
+
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
 
@@ -243,14 +244,14 @@ namespace NeoCortexApi.Experiments
                 // Generate SDR for TEST DATA using the trained SP
                 var testSdr = encoder.Encode(testData);
                 var testActCols = sp.Compute(testSdr, false);
-                
+
                 // Converting the int[] to Cell[] because we need Cell[] format for reconstruction
                 var testCells = testActCols.Select(idx => new Cell { Index = idx }).ToArray();
 
                 // Get predictions using the test SDR
                 var knnPrediction = knnClassifier.GetPredictedInputValues(testCells)[0];
                 var htmPrediction = htmClassifier.GetPredictedInputValues(testCells)[0];
-                
+
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
                 var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
 
@@ -267,7 +268,7 @@ namespace NeoCortexApi.Experiments
                 // Add per-input comparison
                 string betterClassifier = knnSimilarity > htmSimilarity ? "KNN" : "HTM";
                 Console.WriteLine($"{betterClassifier} performed better for this input");
-                
+
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
@@ -321,7 +322,7 @@ namespace NeoCortexApi.Experiments
             SavePlot(plot, "SimilarityPlot.png");
         }
 
-        
+
         /// <summary>
         /// Saves the generated plot to the desktop in a cross-platform compatible way.
         /// The plot is saved as "ScalarInputReconstructionPlot.png" with specified dimensions.
@@ -373,14 +374,42 @@ namespace NeoCortexApi.Experiments
         private static string CalculatePercentageSimilarity(double value1, double value2, double min, double max)
         {
             double range = max - min;
-    
+
             double difference = Math.Abs(value1 - value2);
             double similarity = (1 - (difference / range)) * 100;
-    
+
             // Ensure similarity is not negative.
             similarity = Math.Max(0, similarity);
-    
+
             return similarity.ToString("F2", CultureInfo.InvariantCulture) + "%";
+        } }
+
+            [TestClass]
+            public class SpatialPoolerInputReconstructionTest
+        {
+            [TestMethod]
+        public void TestReconstructionAccuracy()
+            {
+                var experiment = new SpatialPoolerInputReconstructionExperiment();
+                experiment.RunExperiment();
+                // Further assertions and checks can be added based on the output of the experiment
+            }
         }
+
+        [TestClass]
+        public class SpatialPoolerTrainingTest
+        {
+            [TestMethod]
+            public void TestTrainingTime()
+            {
+                var experiment = new SpatialPoolerInputReconstructionExperiment();
+                experiment.RunExperiment();
+                // Test that the training time is within expected bounds
+            }
+        }
+
+       
     }
-}
+    
+
+
