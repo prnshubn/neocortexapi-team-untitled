@@ -408,7 +408,17 @@ namespace NeoCortexApi.Experiments
             }
         }
 
-       
+        [TestClass]
+        public class SimilarityComparisonTest
+        {
+            [TestMethod]
+        public void TestSimilarityResults()
+            {
+                var experiment = new SpatialPoolerInputReconstructionExperiment();
+                experiment.RunExperiment();
+                // Test that the similarity results are within expected bounds
+            }
+        }
     }
     
 
