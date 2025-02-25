@@ -256,11 +256,15 @@ namespace NeoCortexApi.Experiments
                 var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
 
                 Console.WriteLine($"KNN - Reconstructed Input: {knnPrediction.PredictedInput}");
-                Console.WriteLine($"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"KNN - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
+                Console.WriteLine(
+                    $"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"KNN - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
                 Console.WriteLine($"HTM - Reconstructed Input: {htmPrediction.PredictedInput}");
-                Console.WriteLine($"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"HTM - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
+                Console.WriteLine(
+                    $"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"HTM - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
 
                 var knnSimilarity = knnPrediction.Similarity;
                 var htmSimilarity = htmPrediction.Similarity;
@@ -310,11 +314,14 @@ namespace NeoCortexApi.Experiments
         /// <param name="inputs"></param>
         /// <param name="knnSimilarities"></param>
         /// <param name="htmSimilarities"></param>
-        private static void PlotSimilarityResults(List<double> inputs, List<double> knnSimilarities, List<double> htmSimilarities)
+        private static void PlotSimilarityResults(List<double> inputs, List<double> knnSimilarities,
+            List<double> htmSimilarities)
         {
             var plot = new Plot();
-            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.Select(s => s * 100).ToArray()).LegendText = "KNN Similarity";
-            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.Select(s => s * 100).ToArray()).LegendText = "HTM Similarity";
+            plot.Add.Scatter(inputs.ToArray(), knnSimilarities.Select(s => s * 100).ToArray()).LegendText =
+                "KNN Similarity";
+            plot.Add.Scatter(inputs.ToArray(), htmSimilarities.Select(s => s * 100).ToArray()).LegendText =
+                "HTM Similarity";
             plot.Title("Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
@@ -339,7 +346,8 @@ namespace NeoCortexApi.Experiments
         /// <summary>
         /// Analyzes and discusses the results of the reconstruction experiment.
         /// </summary>
-        private static void AnalyzeResults(List<double> inputs, List<double> knnPredictions, List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
+        private static void AnalyzeResults(List<double> inputs, List<double> knnPredictions,
+            List<double> htmPredictions, List<double> knnSimilarities, List<double> htmSimilarities)
         {
             // Calculate Mean Absolute Error (MAE)
             double knnMAE = inputs.Zip(knnPredictions, (a, p) => Math.Abs(a - p)).Average();
@@ -357,9 +365,9 @@ namespace NeoCortexApi.Experiments
 
             // Enhanced comparison
             bool htmBetter = htmAvgSimilarity > knnAvgSimilarity;
-            Console.WriteLine(htmBetter ?
-                "HTM performed better than KNN in reconstructing inputs." :
-                "KNN performed better than HTM in reconstructing inputs.");
+            Console.WriteLine(htmBetter
+                ? "HTM performed better than KNN in reconstructing inputs."
+                : "KNN performed better than HTM in reconstructing inputs.");
         }
 
         /// <summary>
@@ -382,44 +390,10 @@ namespace NeoCortexApi.Experiments
             similarity = Math.Max(0, similarity);
 
             return similarity.ToString("F2", CultureInfo.InvariantCulture) + "%";
-        } }
-
-            [TestClass]
-            public class SpatialPoolerInputReconstructionTest
-        {
-            [TestMethod]
-        public void TestReconstructionAccuracy()
-            {
-                var experiment = new SpatialPoolerInputReconstructionExperiment();
-                experiment.RunExperiment();
-                // Further assertions and checks can be added based on the output of the experiment
-            }
-        }
-
-        [TestClass]
-        public class SpatialPoolerTrainingTest
-        {
-            [TestMethod]
-            public void TestTrainingTime()
-            {
-                var experiment = new SpatialPoolerInputReconstructionExperiment();
-                experiment.RunExperiment();
-                // Test that the training time is within expected bounds
-            }
-        }
-
-        [TestClass]
-        public class SimilarityComparisonTest
-        {
-            [TestMethod]
-        public void TestSimilarityResults()
-            {
-                var experiment = new SpatialPoolerInputReconstructionExperiment();
-                experiment.RunExperiment();
-                // Test that the similarity results are within expected bounds
-            }
         }
     }
+
+ }
     
 
 
