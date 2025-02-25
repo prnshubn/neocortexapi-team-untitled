@@ -29,8 +29,31 @@ namespace UnitTestsProject
 
             // Act & Assert
             experiment.RunExperiment();
-        }
+        }/// <summary>
+        /// Tests that the Spatial Pooler reaches a stable state during training.
+        /// This test captures the console output and checks for the "STABLE STATE REACHED" message.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("Experiment")]
+        public void Test_SpatialPoolerTraining_ReachesStableState()
+        {
+            // Arrange
+            var experiment = new SpatialPoolerInputReconstructionExperiment();
+            var originalConsoleOut = Console.Out;
+            var consoleOutput = new StringWriter();
 
+            Console.SetOut(consoleOutput);
+
+            // Act
+            experiment.RunExperiment();
+
+            // Reset console output
+            Console.SetOut(originalConsoleOut);
+            string output = consoleOutput.ToString();
+
+            // Assert
+            Assert.IsTrue(output.Contains("STABLE STATE REACHED"), "Spatial Pooler did not reach stable state.");
+        }
         
     }
 }
