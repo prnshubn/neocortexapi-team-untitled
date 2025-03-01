@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
-using NeoCortexApi.Experiments;
 using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using ScottPlot;
@@ -21,7 +19,6 @@ namespace NeoCortexApi.Experiments
     /// the similarity of reconstructed inputs using both the KNN and HTM classifiers. It also includes 
     /// a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
     /// </summary>
-    [TestClass]
     public class SpatialPoolerInputReconstructionExperiment
     {
         /// <summary>
@@ -29,14 +26,9 @@ namespace NeoCortexApi.Experiments
         /// training the Spatial Pooler, and performing reconstruction using KNN and HTM classifiers.
         /// It also evaluates the reconstruction accuracy and plots the results for comparison.
         /// </summary>
-        [TestMethod]
-        [TestCategory("Experiment")]
-        public void RunExperiment()
+        public void RunExperiment(double max, int seedValue)
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
-
-            // Max value for input
-            double max = 20;
 
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
@@ -73,13 +65,13 @@ namespace NeoCortexApi.Experiments
             };
 
             EncoderBase encoder = new ScalarEncoder(settings);
-            List<double> inputValues = Enumerable.Range(0, (int)max).Select(i => (double)i).ToList();
+            List<double> inputValues = Enumerable.Range(1, (int)max).Select(i => (double)i).ToList();
 
             // Train the Spatial Pooler
             var sp = TrainSpatialPooler(cfg, encoder, inputValues);
 
             // Perform Reconstruction Experiment
-            RunReconstructionExperiment(sp, encoder, inputValues);
+            RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
         }
 
         /// <summary>
@@ -181,20 +173,22 @@ namespace NeoCortexApi.Experiments
         /// <param name="inputValues"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
+        private static void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues, int seedValue)
         {
             if (sp == null) throw new ArgumentNullException(nameof(sp));
             if (encoder == null) throw new ArgumentNullException(nameof(encoder));
             if (inputValues == null || !inputValues.Any())
                 throw new ArgumentException("Input values cannot be null or empty", nameof(inputValues));
 
-            double min = inputValues.Min();
-            double max = inputValues.Max();
-
-            // As we are dividing the inout set into two parts for training and testing,
+            // As we are dividing the input set into two parts for training and testing,
             // there could a bias the classifiers toward lower values and make the test set
-            // unrepresentative of the full range. Hence, we are shuffling the list.
-            Random random = new();
+            // unrepresentative of the full range. Hence, we need to shuffle the list.
+            Random random;
+            if(seedValue == 0)
+                random = new();
+            else
+                random = new Random(seedValue);
+            
 
             // Shuffle the input List
             inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
@@ -255,29 +249,32 @@ namespace NeoCortexApi.Experiments
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
                 var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
 
-                Console.WriteLine($"KNN - Reconstructed Input: {knnPrediction.PredictedInput}");
-                Console.WriteLine(
-                    $"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine(
-                    $"KNN - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
-                Console.WriteLine($"HTM - Reconstructed Input: {htmPrediction.PredictedInput}");
-                Console.WriteLine(
-                    $"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine(
-                    $"HTM - Percentage Similarity: {CalculatePercentageSimilarity(testData, double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture), min, max)}");
+                var knnPercentageSimilarity = CalculatePercentageSimilarity(testData,
+                    double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture));
+                var htmPercentageSimilarity = CalculatePercentageSimilarity(testData,
+                    double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture));
 
-                var knnSimilarity = knnPrediction.Similarity;
-                var htmSimilarity = htmPrediction.Similarity;
+                Console.WriteLine($"KNN - Reconstructed Input: {knnPrediction.PredictedInput}");
+                Console.WriteLine($"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"KNN - Percentage Similarity: {knnPercentageSimilarity} %");
+                Console.WriteLine($"HTM - Reconstructed Input: {htmPrediction.PredictedInput}");
+                Console.WriteLine($"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"HTM - Percentage Similarity: {htmPercentageSimilarity} %");
 
                 // Add per-input comparison
-                string betterClassifier = knnSimilarity > htmSimilarity ? "KNN" : "HTM";
-                Console.WriteLine($"{betterClassifier} performed better for this input");
+                if(double.Parse(htmPercentageSimilarity) > double.Parse(knnPercentageSimilarity))
+                    Console.WriteLine("Based on PercentageSimilarity - HTM performed better for this input");
+                else if(double.Parse(htmPercentageSimilarity) < double.Parse(knnPercentageSimilarity))
+                    Console.WriteLine("Based on PercentageSimilarity - KNN performed better for this input");
+                else
+                    Console.WriteLine("Based on PercentageSimilarity - Both performed similar for this input");
+                
 
                 // Storing the prediction for visualization
                 knnPredictions.Add(Double.Parse(knnPrediction.PredictedInput));
                 htmPredictions.Add(Double.Parse(htmPrediction.PredictedInput));
-                knnSimilarities.Add(knnSimilarity);
-                htmSimilarities.Add(htmSimilarity);
+                knnSimilarities.Add(knnPrediction.Similarity);
+                htmSimilarities.Add(htmNormalizedSimilarity);
             }
 
             PlotReconstructionResults(testDataSet, knnPredictions, htmPredictions);
@@ -325,7 +322,7 @@ namespace NeoCortexApi.Experiments
             plot.Title("Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
-            plot.Axes.SetLimits(0, 20, 0, 20); // Fixed X-axis to match reconstruction plot
+            plot.Axes.AutoScale();
             SavePlot(plot, "SimilarityPlot.png");
         }
 
@@ -379,20 +376,17 @@ namespace NeoCortexApi.Experiments
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        private static string CalculatePercentageSimilarity(double value1, double value2, double min, double max)
+        private static string CalculatePercentageSimilarity(double value1, double value2)
         {
-            double range = max - min;
-
             double difference = Math.Abs(value1 - value2);
-            double similarity = (1 - (difference / range)) * 100;
+            double similarity = (1 - (difference / Math.Max(value1, value2))) * 100;
 
             // Ensure similarity is not negative.
             similarity = Math.Max(0, similarity);
 
-            return similarity.ToString("F2", CultureInfo.InvariantCulture) + "%";
+            return similarity.ToString("F2", CultureInfo.InvariantCulture);
         }
     }
-
  }
     
 
