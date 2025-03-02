@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Experiments;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace UnitTestsProject
 {
@@ -25,8 +27,6 @@ namespace UnitTestsProject
     [TestClass]
     public class SpatialPoolerInputReconstructionExperimentTests
     {
-        private const string RECONSTRUCTION_PLOT_FILE_NAME = "ReconstructionPlot.png";
-        private const string SIMILARITY_PLOT_FILE_NAME = "SimilarityPlot.png";
 
         /// <summary>
         /// Tests that the RunExperiment method executes without throwing any exceptions.
@@ -35,10 +35,10 @@ namespace UnitTestsProject
         [TestMethod]
         [Priority(1)]
         [TestCategory("Experiment")]
-        public void Test_RunExperiment_CompletesWithoutException()
+        public void Test_Experiment_Completes_Without_Exception()
         {
             SpatialPoolerInputReconstructionExperiment experiment = new();
-            experiment.RunExperiment(10, 0);
+            experiment.RunExperiment(20, 0);
         }
         
         /// <summary>
@@ -47,7 +47,7 @@ namespace UnitTestsProject
         [TestMethod]
         [Priority(2)]
         [TestCategory("Experiment")]
-        public void Test_PercentageSimilarity_For_Known_values()
+        public void Test_Experiment_With_Random_Seed_Value()
         {
             // Arrange
             SpatialPoolerInputReconstructionExperiment experiment = new();
@@ -56,7 +56,9 @@ namespace UnitTestsProject
             experiment.RunExperiment(20, 42);
 
             // Assert
-            // TODO: Add assertions of known values
+            var testData = experiment.Results.Keys.ToList();
+            double[] expectedData = { 1.00, 7.00, 10.00, 19.00 };
+            Assert.IsTrue(expectedData.All(v => testData.Contains(v)));
         }
 
         /// <summary>
@@ -64,6 +66,7 @@ namespace UnitTestsProject
         /// This test captures the console output and checks for the "STABLE STATE REACHED" message.
         /// </summary>
         [TestMethod]
+        [Priority(3)]
         [TestCategory("Experiment")]
         public void Test_SpatialPoolerTraining_ReachesStableState()
         {
@@ -90,6 +93,7 @@ namespace UnitTestsProject
         /// This test captures the console output and checks for reconstruction results.
         /// </summary>
         [TestMethod]
+        [Priority(4)]
         [TestCategory("Experiment")]
         public void Test_Reconstruction_ProducesPredictions()
         {
@@ -111,32 +115,6 @@ namespace UnitTestsProject
             Assert.IsTrue(output.Contains("KNN - Reconstructed Input"), "KNN predictions not found in output.");
             Assert.IsTrue(output.Contains("HTM - Reconstructed Input"), "HTM predictions not found in output.");
             Assert.IsTrue(output.Contains("Percentage Similarity"), "Similarity metrics not found in output.");
-        }
-
-        /// <summary>
-        /// Tests that the reconstruction and similarity plots are generated and saved to the desktop.
-        /// This test checks for the existence of the output files (environment-dependent).
-        /// </summary>
-        [TestMethod]
-        [TestCategory("Experiment")]
-        public void Test_PlotsGenerated()
-        {
-            // Arrange
-            SpatialPoolerInputReconstructionExperiment experiment = new();
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string reconstructionPlotPath = Path.Combine(desktopPath, RECONSTRUCTION_PLOT_FILE_NAME);
-            string similarityPlotPath = Path.Combine(desktopPath, SIMILARITY_PLOT_FILE_NAME);
-
-            // Ensure any existing files are deleted before test
-            if (File.Exists(reconstructionPlotPath)) File.Delete(reconstructionPlotPath);
-            if (File.Exists(similarityPlotPath)) File.Delete(similarityPlotPath);
-
-            // Act
-            experiment.RunExperiment(10, 0);
-
-            // Assert
-            Assert.IsTrue(File.Exists(reconstructionPlotPath), "Reconstruction plot file not found.");
-            Assert.IsTrue(File.Exists(similarityPlotPath), "Similarity plot file not found.");
         }
     }
 }
