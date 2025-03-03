@@ -40,7 +40,7 @@ namespace UnitTestsProject
         public void Test_Experiment_Completes_Without_Exception()
         {
             SpatialPoolerInputReconstructionExperiment experiment = new();
-            experiment.ReconstructionExperiment(10);
+            experiment.ReconstructionExperiment(20);
         }
         
         /// <summary>
