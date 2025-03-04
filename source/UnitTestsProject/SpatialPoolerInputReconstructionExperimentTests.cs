@@ -90,7 +90,7 @@ namespace UnitTestsProject
 
         /// <summary>
         ///     Tests that the input reconstruction phase produces valid predictions and similarity metrics.
-        ///     This test captures the console output and checks for reconstruction results.
+        ///     This test captures the console output and checks for reconstruction results in the console.
         /// </summary>
         [TestMethod]
         [Priority(4)]
