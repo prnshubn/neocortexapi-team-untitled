@@ -120,6 +120,7 @@ namespace UnitTestsProject
         
         /// <summary>
         ///     Checks if reconstructed inputs from KNN/HTM have valid similarity scores (0-100%).
+        ///     We check here numerical value only and the percentage sign is directly added in the console and output file.
         /// </summary>
         [TestMethod]
         [Priority(5)]
