@@ -34,14 +34,14 @@ namespace NeoCortexApi.Experiments
     public class SpatialPoolerInputReconstructionExperiment
     {
         // Properties to store results
-        public Dictionary<double, (double KnnReconstructedInput, 
-            double HtmReconstructedInput,
-            double KnnInternalSimilarity,
-            double HtmInternalSimilarity,
-            double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> 
+        public Dictionary<double, (double KnnReconstructedInput,
+                double HtmReconstructedInput,
+                double KnnInternalSimilarity,
+                double HtmInternalSimilarity,
+                double KnnPercentageSimilarity,
+                double HtmPercentageSimilarity)>
             Results { get; } = new();
-        
+
         /// <summary>
         /// Runs the input reconstruction experiment by initializing necessary components,
         /// training the Spatial Pooler, and performing reconstruction using KNN and HTM classifiers.
@@ -120,7 +120,8 @@ namespace NeoCortexApi.Experiments
                 });
 
             SpatialPooler sp = new(hpa);
-            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
+            sp.Init(mem,
+                new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
             CortexLayer<object, object> cortexLayer = new("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
@@ -189,7 +190,8 @@ namespace NeoCortexApi.Experiments
         /// <param name="seedValue"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        private void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues, int seedValue)
+        private void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
+            int seedValue)
         {
             if (sp == null) throw new ArgumentNullException(nameof(sp));
             if (encoder == null) throw new ArgumentNullException(nameof(encoder));
@@ -200,7 +202,7 @@ namespace NeoCortexApi.Experiments
             // there could a bias the classifiers toward lower values and make the test set
             // unrepresentative of the full range. Hence, we need to shuffle the list.
             Random random;
-            if(seedValue == 0) random = new();
+            if (seedValue == 0) random = new();
             else random = new Random(seedValue);
 
             // Shuffle the input List
@@ -237,11 +239,12 @@ namespace NeoCortexApi.Experiments
             stopwatch.Stop();
             Console.WriteLine("\nClassifier Training Complete");
             Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
-            
+
             ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier);
         }
 
-        private void ReconstructionPart(List<double> dataset, EncoderBase encoder, SpatialPooler sp, KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier)
+        private void ReconstructionPart(List<double> dataset, EncoderBase encoder, SpatialPooler sp,
+            KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier)
         {
             foreach (var data in dataset)
             {
@@ -265,28 +268,32 @@ namespace NeoCortexApi.Experiments
                     double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture));
                 var htmPercentageSimilarity = CalculatePercentageSimilarity(data,
                     double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture));
-                
+
                 Console.WriteLine($"KNN - Reconstructed Input: {knnPrediction.PredictedInput}");
-                Console.WriteLine($"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"KNN - Percentage Similarity: {knnPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"KNN - Percentage Similarity: {knnPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
                 Console.WriteLine($"HTM - Reconstructed Input: {htmPrediction.PredictedInput}");
-                Console.WriteLine($"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
-                Console.WriteLine($"HTM - Percentage Similarity: {htmPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                Console.WriteLine(
+                    $"HTM - Percentage Similarity: {htmPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
 
                 // Add per-input comparison
-                if(htmPercentageSimilarity > knnPercentageSimilarity)
+                if (htmPercentageSimilarity > knnPercentageSimilarity)
                     Console.WriteLine("Based on PercentageSimilarity - HTM performed better for this input");
-                else if(htmPercentageSimilarity < knnPercentageSimilarity)
+                else if (htmPercentageSimilarity < knnPercentageSimilarity)
                     Console.WriteLine("Based on PercentageSimilarity - KNN performed better for this input");
                 else
                     Console.WriteLine("Based on PercentageSimilarity - Both performed similar for this input");
-                
+
                 // Store results for visualisations
                 Results[data] = (
                     double.Parse(knnPrediction.PredictedInput),
                     double.Parse(htmPrediction.PredictedInput),
                     knnPrediction.Similarity,
-                    htmNormalizedSimilarity, 
+                    htmNormalizedSimilarity,
                     knnPercentageSimilarity,
                     htmPercentageSimilarity
                 );
@@ -301,7 +308,7 @@ namespace NeoCortexApi.Experiments
         /// Plots the reconstruction results by creating a scatter plot comparing the original input values 
         /// with the reconstructed predictions from both KNN and HTM classifiers.
         /// </summary>
-        private void PlotReconstructionResults(Dictionary<double, (double KnnReconstructedInput, 
+        private void PlotReconstructionResults(Dictionary<double, (double KnnReconstructedInput,
             double HtmReconstructedInput,
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
@@ -309,8 +316,10 @@ namespace NeoCortexApi.Experiments
             double HtmPercentageSimilarity)> results, string name)
         {
             var plot = new Plot();
-            plot.Add.Scatter(results.Keys.ToArray(), results.Values.Select(result => result.KnnReconstructedInput).ToArray()).LegendText = "KNN Predictions";
-            plot.Add.Scatter(results.Keys.ToArray(), results.Values.Select(result => result.HtmReconstructedInput).ToArray()).LegendText = "HTM Predictions";
+            plot.Add.Scatter(results.Keys.ToArray(),
+                results.Values.Select(result => result.KnnReconstructedInput).ToArray()).LegendText = "KNN Predictions";
+            plot.Add.Scatter(results.Keys.ToArray(),
+                results.Values.Select(result => result.HtmReconstructedInput).ToArray()).LegendText = "HTM Predictions";
             plot.Title(name + " - Reconstruction Predictions");
             plot.XLabel("Input Values");
             plot.YLabel("Predictions");
@@ -321,7 +330,7 @@ namespace NeoCortexApi.Experiments
         /// Plots the similarity results by creating Line plots comparing similarities
         /// of reconstructed inputs with original inputs from both KNN and HTM classifiers.
         /// </summary>
-        private void PlotSimilarityResults(Dictionary<double, (double KnnReconstructedInput, 
+        private void PlotSimilarityResults(Dictionary<double, (double KnnReconstructedInput,
             double HtmReconstructedInput,
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
@@ -329,33 +338,33 @@ namespace NeoCortexApi.Experiments
             double HtmPercentageSimilarity)> results, string name)
         {
             var plot = new Plot();
-            
+
             // Plotting the KNN Similarities
             results.ToList().ForEach(kvp =>
             {
                 var line = plot.Add.Line(
-                    x1: kvp.Key-0.05,
-                    x2: kvp.Key-0.05,
-                    y1: 0, 
-                    y2: kvp.Value.KnnPercentageSimilarity*100
+                    x1: kvp.Key - 0.05,
+                    x2: kvp.Key - 0.05,
+                    y1: 0,
+                    y2: kvp.Value.KnnPercentageSimilarity * 100
                 );
                 line.Color = Colors.Blue;
                 line.LineWidth = 3;
             });
-            
+
             // Plotting the HTM Similarities
             results.ToList().ForEach(kvp =>
             {
                 var line = plot.Add.Line(
-                    x1: kvp.Key+0.05,
-                    x2: kvp.Key+0.05,
-                    y1: 0, 
-                    y2: kvp.Value.HtmPercentageSimilarity*100
+                    x1: kvp.Key + 0.05,
+                    x2: kvp.Key + 0.05,
+                    y1: 0,
+                    y2: kvp.Value.HtmPercentageSimilarity * 100
                 );
                 line.Color = Colors.Red;
                 line.LineWidth = 3;
             });
-            
+
             // Dummy Line to add Legend
             var knnLegend = plot.Add.Line(0, 0, 0, 0);
             knnLegend.Color = Colors.Blue;
@@ -367,11 +376,11 @@ namespace NeoCortexApi.Experiments
             htmLegend.LegendText = "HTM Similarities";
 
             plot.Legend.Alignment = Alignment.UpperLeft;
-            plot.Title(name+" - Similarity Comparison");
+            plot.Title(name + " - Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
-            
-            SavePlot(plot, name+"_SimilarityPlot.png");
+
+            SavePlot(plot, name + "_SimilarityPlot.png");
         }
 
         /// <summary>
@@ -400,8 +409,8 @@ namespace NeoCortexApi.Experiments
 
             // Ensure similarity is not negative.
             similarity = Math.Max(0, similarity);
-            
+
             return Math.Round(similarity, 2);
         }
     }
- }
+}
