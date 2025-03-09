@@ -10,26 +10,32 @@ using NeoCortexApi.Entities;
 using NeoCortexApi.Network;
 using NeoCortexApi.Utility;
 using ScottPlot;
+using ScottPlot.Plottables;
 
 namespace NeoCortexApi.Experiments
 {
     /// <summary>
-    /// <see href="https://github.com/prnshubn/neocortexapi-team-untitled">Project Link</see><br/>
-    /// <see href="https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled">Documentation</see><br/>
-    /// Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN and HTM).
-    /// This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating 
-    /// the similarity of reconstructed inputs using both the KNN and HTM classifiers. It also includes 
-    /// a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
-    /// </summary><br/>
+    ///     <see href="https://github.com/prnshubn/neocortexapi-team-untitled">Project Link</see><br />
+    ///     <see href="https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled">Documentation</see>
+    ///     <br />
+    ///     Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN and HTM).
+    ///     This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating
+    ///     the similarity of reconstructed inputs using both the KNN and HTM classifiers. It also includes
+    ///     a learning phase for the Spatial Pooler, which helps in creating stable representations of input patterns.
+    /// </summary>
+    /// <br />
     /// <para>
-    /// University: Frankfurt University of Applied Sciences<br/>
-    /// Degree: Master's in Information Technology<br/>
-    /// Year: 2024-2025<br/>
-    /// Team: Untitled<br/>
-    /// Contributors:
-    /// <see href="https://github.com/prnshubn">Priyanshu Bandyopadhyay</see>,  
-    /// <see href="https://github.com/Hanumanthumanoj01">Manoj Hanumanthu</see>,  
-    /// <see href="https://github.com/Akshay-Gudekar">Akshay Gudekar</see>
+    ///     University: Frankfurt University of Applied Sciences<br />
+    ///     Degree: Master's in Information Technology<br />
+    ///     Year: 2024-2025<br />
+    ///     Team: Untitled<br />
+    ///     Contributors:
+    ///     <see href="https://github.com/prnshubn">Priyanshu Bandyopadhyay</see>,
+    ///     <see href="https://github.com/Hanumanthumanoj01">Manoj Hanumanthu</see>,
+    ///     <see href="https://github.com/Akshay-Gudekar">Akshay Gudekar</see>
+    /// </para>
+    /// <para>
+    ///     To run/test the experiment please use the Test class - <b>SpatialPoolerInputReconstructionExperimentTests</b>
     /// </para>
     public class SpatialPoolerInputReconstructionExperiment
     {
@@ -43,9 +49,9 @@ namespace NeoCortexApi.Experiments
             Results { get; } = new();
 
         /// <summary>
-        /// Runs the input reconstruction experiment by initializing necessary components,
-        /// training the Spatial Pooler, and performing reconstruction using KNN and HTM classifiers.
-        /// It also evaluates the reconstruction accuracy and plots the results for comparison.
+        ///     Runs the input reconstruction experiment by initializing necessary components,
+        ///     training the Spatial Pooler, and performing reconstruction using KNN and HTM classifiers.
+        ///     It also evaluates the reconstruction accuracy and plots the results for comparison.
         /// </summary>
         /// <param name="max">Starting from 1 the maximum input you want to try reconstructing</param>
         /// <param name="seedValue">Needed later in reconstruction step to check if experiment is providing desired result</param>
@@ -71,7 +77,7 @@ namespace NeoCortexApi.Experiments
                 ActivationThreshold = 10,
                 MaxSynapsesPerSegment = (int)(0.01 * numColumns),
                 Random = new ThreadSafeRandom(42),
-                StimulusThreshold = 10,
+                StimulusThreshold = 10
             };
 
             // Scalar Encoder settings
@@ -91,16 +97,16 @@ namespace NeoCortexApi.Experiments
             List<double> inputValues = Enumerable.Range(1, (int)max).Select(i => (double)i).ToList();
 
             // Train the Spatial Pooler
-            var sp = TrainSpatialPooler(cfg, encoder, inputValues);
+            SpatialPooler sp = this.TrainSpatialPooler(cfg, encoder, inputValues);
 
             // Perform Reconstruction Experiment
-            RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
+            this.RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
         }
 
         /// <summary>
-        /// Trains the Spatial Pooler by initializing its components, running a learning phase, 
-        /// and iterating through a predefined number of cycles to achieve stable representation 
-        /// of the input patterns. It logs the training cycle details and measures the training time.
+        ///     Train the Spatial Pooler by initializing its components, running a learning phase,
+        ///     and iterating through a predefined number of cycles to achieve stable representation
+        ///     of the input patterns. Log the training cycle details and measures the training time.
         /// </summary>
         /// <param name="cfg">The configuration for HTM</param>
         /// <param name="encoder">Encoder to use for converting inout to SDR</param>
@@ -108,7 +114,7 @@ namespace NeoCortexApi.Experiments
         /// <returns>The trained version of the SP</returns>
         private SpatialPooler TrainSpatialPooler(HtmConfig cfg, EncoderBase encoder, List<double> inputs)
         {
-            var mem = new Connections(cfg);
+            Connections mem = new(cfg);
             bool isInStableState = false;
             int numStableCycles = 0;
 
@@ -121,7 +127,7 @@ namespace NeoCortexApi.Experiments
 
             SpatialPooler sp = new(hpa);
             sp.Init(mem,
-                new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
+                new DistributedMemory { ColumnDictionary = new InMemoryDistributedDictionary<int, Column>(1) });
 
             CortexLayer<object, object> cortexLayer = new("L1");
             cortexLayer.HtmModules.Add("encoder", encoder);
@@ -137,7 +143,7 @@ namespace NeoCortexApi.Experiments
             Dictionary<double, double> prevSimilarity = new();
 
             // Initialize start similarity to zero.
-            foreach (var input in inputs)
+            foreach (double input in inputs)
             {
                 prevSimilarity.Add(input, 0.0);
                 prevActiveCols.Add(input, new int[0]);
@@ -150,16 +156,16 @@ namespace NeoCortexApi.Experiments
                 Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
 
                 // This trains the layer on input pattern
-                foreach (var input in inputs)
+                foreach (double input in inputs)
                 {
                     // Learn the input pattern
                     // Output lyrOut is the output of the last module in the layer
-                    var lyrOut = cortexLayer.Compute((object)input, true) as int[];
+                    int[] lyrOut = cortexLayer.Compute(input, true) as int[];
 
                     // This is a general way to get the SpatialPooler result from the layer
-                    var activeColumns = cortexLayer.GetResult("sp") as int[];
+                    int[] activeColumns = cortexLayer.GetResult("sp") as int[];
 
-                    var actCols = activeColumns.OrderBy(c => c).ToArray();
+                    int[] actCols = activeColumns.OrderBy(c => c).ToArray();
 
                     double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
@@ -170,8 +176,15 @@ namespace NeoCortexApi.Experiments
                     prevSimilarity[input] = similarity;
                 }
 
-                if (isInStableState) numStableCycles++;
-                if (numStableCycles > 5) break;
+                if (isInStableState)
+                {
+                    numStableCycles++;
+                }
+
+                if (numStableCycles > 5)
+                {
+                    break;
+                }
             }
 
             stopwatch.Stop();
@@ -180,9 +193,9 @@ namespace NeoCortexApi.Experiments
         }
 
         /// <summary>
-        /// Runs the reconstruction experiment by training KNN and HTM classifiers using input values,
-        /// making predictions for each input, and comparing the reconstructed inputs' similarity 
-        /// to the original inputs. The reconstruction results are displayed in the console, and a plot is generated.
+        ///     Runs the reconstruction experiment by training KNN and HTM classifiers using input values,
+        ///     making predictions for each input, and comparing the reconstructed inputs' similarity
+        ///     to the original inputs. The reconstruction results are displayed in the console, and a plot is generated.
         /// </summary>
         /// <param name="sp"></param>
         /// <param name="encoder"></param>
@@ -193,25 +206,41 @@ namespace NeoCortexApi.Experiments
         private void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
             int seedValue)
         {
-            if (sp == null) throw new ArgumentNullException(nameof(sp));
-            if (encoder == null) throw new ArgumentNullException(nameof(encoder));
+            if (sp == null)
+            {
+                throw new ArgumentNullException(nameof(sp));
+            }
+
+            if (encoder == null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+
             if (inputValues == null || !inputValues.Any())
+            {
                 throw new ArgumentException("Input values cannot be null or empty", nameof(inputValues));
+            }
 
             // As we are dividing the input set into two parts for training and testing,
             // there could a bias the classifiers toward lower values and make the test set
             // unrepresentative of the full range. Hence, we need to shuffle the list.
             Random random;
-            if (seedValue == 0) random = new();
-            else random = new Random(seedValue);
+            if (seedValue == 0)
+            {
+                random = new Random();
+            }
+            else
+            {
+                random = new Random(seedValue);
+            }
 
             // Shuffle the input List
             inputValues = inputValues.OrderBy(_ => random.Next()).ToList();
 
             // Split data into training (80%) and testing (20%)
-            var splitIdx = (int)(inputValues.Count * 0.8);
-            var trainDataSet = inputValues.Take(splitIdx).ToList();
-            var testDataSet = inputValues.Skip(splitIdx).ToList();
+            int splitIdx = (int)(inputValues.Count * 0.8);
+            List<double> trainDataSet = inputValues.Take(splitIdx).ToList();
+            List<double> testDataSet = inputValues.Skip(splitIdx).ToList();
 
             KNeighborsClassifier<string, string> knnClassifier = new();
             HtmClassifier<string, string> htmClassifier = new();
@@ -223,14 +252,14 @@ namespace NeoCortexApi.Experiments
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             // Train classifiers on TRAINING DATA
-            foreach (var trainData in trainDataSet)
+            foreach (double trainData in trainDataSet)
             {
                 // Generate SDR for TRAINING DATA using the trained SP
-                var sdr = encoder.Encode(trainData);
-                var actCols = sp.Compute(sdr, false);
+                int[] sdr = encoder.Encode(trainData);
+                int[] actCols = sp.Compute(sdr, false);
 
                 // Converting the int[] to Cell[] because we need Cell[] format for learning
-                var cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
+                Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
 
                 knnClassifier.Learn(trainData.ToString("F2", CultureInfo.InvariantCulture), cells);
                 htmClassifier.Learn(trainData.ToString("F2", CultureInfo.InvariantCulture), cells);
@@ -240,33 +269,50 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine("\nClassifier Training Complete");
             Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
 
-            ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier);
+            // Run the Reconstruction on test data - the data which was not used to train the classifiers
+            this.ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier, "Test");
+
+            // Run the Reconstruction on training data - the data which was used to train the classifiers
+            this.ReconstructionPart(trainDataSet, encoder, sp, knnClassifier, htmClassifier, "Train");
         }
 
+        /// <summary>
+        ///     Runs the reconstruction part of the experiment by generating SDRs for the dataset,
+        ///     making predictions using KNN and HTM classifiers, and comparing the reconstructed inputs'
+        ///     similarity to the original inputs. The results are stored and plotted for visualization.
+        /// </summary>
+        /// <param name="dataset">The dataset to be used for reconstruction</param>
+        /// <param name="encoder">The encoder used for converting input to SDR</param>
+        /// <param name="sp">The trained Spatial Pooler</param>
+        /// <param name="knnClassifier">The KNN classifier used for reconstruction</param>
+        /// <param name="htmClassifier">The HTM classifier used for reconstruction</param>
+        /// <param name="datasetType">The type of dataset ("Train" or "Test")</param>
         private void ReconstructionPart(List<double> dataset, EncoderBase encoder, SpatialPooler sp,
-            KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier)
+            KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier,
+            string datasetType)
         {
-            foreach (var data in dataset)
+            Results.Clear();
+            foreach (double data in dataset)
             {
-                Console.WriteLine($"\nTest Input: {data.ToString("F", CultureInfo.InvariantCulture)}");
+                Console.WriteLine($"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}");
 
-                // Generate SDR for TEST DATA using the trained SP
-                var testSdr = encoder.Encode(data);
-                var testActCols = sp.Compute(testSdr, false);
+                // Generate SDR using the trained SP
+                int[] sdr = encoder.Encode(data);
+                int[] actCols = sp.Compute(sdr, false);
 
                 // Converting the int[] to Cell[] because we need Cell[] format for reconstruction
-                var testCells = testActCols.Select(idx => new Cell { Index = idx }).ToArray();
+                Cell[] cells = actCols.Select(idx => new Cell { Index = idx }).ToArray();
 
                 // Get predictions using the test SDR
-                var knnPrediction = knnClassifier.GetPredictedInputValues(testCells)[0];
-                var htmPrediction = htmClassifier.GetPredictedInputValues(testCells)[0];
+                ClassifierResult<string> knnPrediction = knnClassifier.GetPredictedInputValues(cells)[0];
+                ClassifierResult<string> htmPrediction = htmClassifier.GetPredictedInputValues(cells)[0];
 
                 // This is done because HTM provides Similarity value between 0 - 100, but we want between 0 - 1
-                var htmNormalizedSimilarity = htmPrediction.Similarity / 100;
+                double htmNormalizedSimilarity = htmPrediction.Similarity / 100;
 
-                var knnPercentageSimilarity = CalculatePercentageSimilarity(data,
+                double knnPercentageSimilarity = this.CalculatePercentageSimilarity(data,
                     double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture));
-                var htmPercentageSimilarity = CalculatePercentageSimilarity(data,
+                double htmPercentageSimilarity = this.CalculatePercentageSimilarity(data,
                     double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture));
 
                 Console.WriteLine($"KNN - Reconstructed Input: {knnPrediction.PredictedInput}");
@@ -282,16 +328,22 @@ namespace NeoCortexApi.Experiments
 
                 // Add per-input comparison
                 if (htmPercentageSimilarity > knnPercentageSimilarity)
+                {
                     Console.WriteLine("Based on PercentageSimilarity - HTM performed better for this input");
+                }
                 else if (htmPercentageSimilarity < knnPercentageSimilarity)
+                {
                     Console.WriteLine("Based on PercentageSimilarity - KNN performed better for this input");
+                }
                 else
+                {
                     Console.WriteLine("Based on PercentageSimilarity - Both performed similar for this input");
+                }
 
                 // Store results for visualisations
                 Results[data] = (
-                    double.Parse(knnPrediction.PredictedInput),
-                    double.Parse(htmPrediction.PredictedInput),
+                    double.Parse(knnPrediction.PredictedInput.ToString(CultureInfo.InvariantCulture)),
+                    double.Parse(htmPrediction.PredictedInput.ToString(CultureInfo.InvariantCulture)),
                     knnPrediction.Similarity,
                     htmNormalizedSimilarity,
                     knnPercentageSimilarity,
@@ -300,50 +352,71 @@ namespace NeoCortexApi.Experiments
             }
 
             // Plot results
-            PlotReconstructionResults(Results, "Test Data");
-            PlotSimilarityResults(Results, "Test Data");
+            this.PlotReconstructionResults(Results, datasetType);
+            this.PlotSimilarityResults(Results, datasetType);
         }
 
         /// <summary>
-        /// Plots the reconstruction results by creating a scatter plot comparing the original input values 
-        /// with the reconstructed predictions from both KNN and HTM classifiers.
+        ///     Plots the reconstruction results by creating a scatter plot comparing the original input values
+        ///     with the reconstructed predictions from both KNN and HTM classifiers.
         /// </summary>
         private void PlotReconstructionResults(Dictionary<double, (double KnnReconstructedInput,
             double HtmReconstructedInput,
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, string name)
+            double HtmPercentageSimilarity)> results, string datasetType)
         {
-            var plot = new Plot();
-            plot.Add.Scatter(results.Keys.ToArray(),
-                results.Values.Select(result => result.KnnReconstructedInput).ToArray()).LegendText = "KNN Predictions";
-            plot.Add.Scatter(results.Keys.ToArray(),
-                results.Values.Select(result => result.HtmReconstructedInput).ToArray()).LegendText = "HTM Predictions";
-            plot.Title(name + " - Reconstruction Predictions");
-            plot.XLabel("Input Values");
-            plot.YLabel("Predictions");
-            SavePlot(plot, name + "_ReconstructionPlot.png");
+            Plot knnPlot = new();
+            
+            var knnScatter = knnPlot.Add.Scatter(results.Keys.ToArray(),
+                results.Values.Select(result => result.KnnReconstructedInput/100).ToArray());
+
+            knnScatter.LegendText = "KNN Predictions";
+            knnScatter.LineWidth = 0;
+            knnScatter.MarkerSize = 10;
+            knnScatter.MarkerColor = Colors.Blue;
+            knnScatter.MarkerShape = MarkerShape.FilledCircle;
+
+            knnPlot.Title(datasetType + " - KNN - Reconstruction Predictions");
+            knnPlot.XLabel("Input Values");
+            knnPlot.YLabel("Predictions");
+            this.SavePlot(knnPlot, datasetType + "_KNN_ReconstructionPlot.png");
+            
+            Plot htmPlot = new();
+            
+            var htmScatter = htmPlot.Add.Scatter(results.Keys.ToArray(),
+                results.Values.Select(result => result.HtmReconstructedInput/100).ToArray());
+
+            htmScatter.LegendText = "HTM Predictions";
+            htmScatter.LineWidth = 0;
+            htmScatter.MarkerSize = 10;
+            htmScatter.MarkerColor = Colors.Blue;
+            htmScatter.MarkerShape = MarkerShape.FilledCircle;
+            htmPlot.Title(datasetType + " - HTM - Reconstruction Predictions");
+            htmPlot.XLabel("Input Values");
+            htmPlot.YLabel("Predictions");
+            this.SavePlot(htmPlot, datasetType + "_HTM_ReconstructionPlot.png");
         }
 
         /// <summary>
-        /// Plots the similarity results by creating Line plots comparing similarities
-        /// of reconstructed inputs with original inputs from both KNN and HTM classifiers.
+        ///     Plots the similarity results by creating Line plots comparing similarities
+        ///     of reconstructed inputs with original inputs from both KNN and HTM classifiers.
         /// </summary>
         private void PlotSimilarityResults(Dictionary<double, (double KnnReconstructedInput,
             double HtmReconstructedInput,
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, string name)
+            double HtmPercentageSimilarity)> results, string datasetType)
         {
-            var plot = new Plot();
+            Plot plot = new();
 
             // Plotting the KNN Similarities
             results.ToList().ForEach(kvp =>
             {
-                var line = plot.Add.Line(
-                    x1: kvp.Key - 0.05,
+                LinePlot line = plot.Add.Line(
+                    kvp.Key - 0.05,
                     x2: kvp.Key - 0.05,
                     y1: 0,
                     y2: kvp.Value.KnnPercentageSimilarity * 100
@@ -355,8 +428,8 @@ namespace NeoCortexApi.Experiments
             // Plotting the HTM Similarities
             results.ToList().ForEach(kvp =>
             {
-                var line = plot.Add.Line(
-                    x1: kvp.Key + 0.05,
+                LinePlot line = plot.Add.Line(
+                    kvp.Key + 0.05,
                     x2: kvp.Key + 0.05,
                     y1: 0,
                     y2: kvp.Value.HtmPercentageSimilarity * 100
@@ -366,38 +439,38 @@ namespace NeoCortexApi.Experiments
             });
 
             // Dummy Line to add Legend
-            var knnLegend = plot.Add.Line(0, 0, 0, 0);
+            LinePlot knnLegend = plot.Add.Line(0, 0, 0, 0);
             knnLegend.Color = Colors.Blue;
             knnLegend.LegendText = "KNN Similarities";
 
             // Dummy Line to add Legend
-            var htmLegend = plot.Add.Line(0, 0, 0, 0);
+            LinePlot htmLegend = plot.Add.Line(0, 0, 0, 0);
             htmLegend.Color = Colors.Red;
             htmLegend.LegendText = "HTM Similarities";
 
             plot.Legend.Alignment = Alignment.UpperLeft;
-            plot.Title(name + " - Similarity Comparison");
+            plot.Title(datasetType + " - Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
 
-            SavePlot(plot, name + "_SimilarityPlot.png");
+            this.SavePlot(plot, datasetType + "_SimilarityPlot.png");
         }
 
         /// <summary>
-        /// Saves the generated plot to the desktop in a cross-platform compatible way.
-        /// The plot is saved as "ScalarInputReconstructionPlot.png" with specified dimensions.
+        ///     Saves the generated plot to the desktop in a cross-platform compatible way.
+        ///     The plot is saved as "ScalarInputReconstructionPlot.png" with specified dimensions.
         /// </summary>
         /// <param name="plot"></param>
         /// <param name="fileName"></param>
         private void SavePlot(Plot plot, string fileName)
         {
             string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
-            plot.Save(savePath, 800, 800);
+            plot.Save(savePath, 1200, 800);
             Console.WriteLine($"\nPlot saved at: {savePath}");
         }
 
         /// <summary>
-        /// Calculates the Absolute Percentage Similarity between two given values
+        ///     Calculates the Absolute Percentage Similarity between two given values
         /// </summary>
         /// <param name="value1">First value</param>
         /// <param name="value2">Second value</param>
@@ -405,10 +478,7 @@ namespace NeoCortexApi.Experiments
         private double CalculatePercentageSimilarity(double value1, double value2)
         {
             double difference = Math.Abs(value1 - value2);
-            double similarity = (1 - (difference / Math.Max(value1, value2)));
-
-            // Ensure similarity is not negative.
-            similarity = Math.Max(0, similarity);
+            double similarity = 1 - (difference / Math.Max(value1, value2));
 
             return Math.Round(similarity, 2);
         }
