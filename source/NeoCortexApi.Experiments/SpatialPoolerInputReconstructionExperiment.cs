@@ -55,7 +55,7 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         /// <param name="max">Starting from 1 the maximum input you want to try reconstructing</param>
         /// <param name="seedValue">Needed later in reconstruction step to check if experiment is providing desired result</param>
-        public void RunExperiment(double max, int seedValue)
+        public void RunExperiment(double max, int seedValue=0)
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
 
@@ -270,10 +270,10 @@ namespace NeoCortexApi.Experiments
             Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
 
             // Run the Reconstruction on test data - the data which was not used to train the classifiers
-            this.ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier, "Test");
+            this.ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Test");
 
             // Run the Reconstruction on training data - the data which was used to train the classifiers
-            this.ReconstructionPart(trainDataSet, encoder, sp, knnClassifier, htmClassifier, "Train");
+            this.ReconstructionPart(trainDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Train");
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace NeoCortexApi.Experiments
         /// <param name="datasetType">The type of dataset ("Train" or "Test")</param>
         private void ReconstructionPart(List<double> dataset, EncoderBase encoder, SpatialPooler sp,
             KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier,
-            string datasetType)
+            double max, string datasetType)
         {
             Results.Clear();
             foreach (double data in dataset)
@@ -342,18 +342,33 @@ namespace NeoCortexApi.Experiments
 
                 // Store results for visualisations
                 Results[data] = (
-                    double.Parse(knnPrediction.PredictedInput.ToString(CultureInfo.InvariantCulture)),
-                    double.Parse(htmPrediction.PredictedInput.ToString(CultureInfo.InvariantCulture)),
+                    double.Parse(knnPrediction.PredictedInput, CultureInfo.InvariantCulture),
+                    double.Parse(htmPrediction.PredictedInput, CultureInfo.InvariantCulture),
                     knnPrediction.Similarity,
                     htmNormalizedSimilarity,
                     knnPercentageSimilarity,
                     htmPercentageSimilarity
                 );
+
             }
 
             // Plot results
-            this.PlotReconstructionResults(Results, datasetType);
-            this.PlotSimilarityResults(Results, datasetType);
+            this.PlotReconstructionResults(Results, max, datasetType);
+            this.PlotSimilarityResults(Results, max, datasetType);
+        }
+        
+        /// <summary>
+        ///     Calculates the Absolute Percentage Similarity between two given values
+        /// </summary>
+        /// <param name="value1">First value</param>
+        /// <param name="value2">Second value</param>
+        /// <returns>Calculates the Percentage Similarity between the given vales and returns the result between 0 -1</returns>
+        private double CalculatePercentageSimilarity(double value1, double value2)
+        {
+            double difference = Math.Abs(value1 - value2);
+            double similarity = 1 - (difference / Math.Max(value1, value2));
+
+            return Math.Round(similarity, 2);
         }
 
         /// <summary>
@@ -365,38 +380,41 @@ namespace NeoCortexApi.Experiments
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, string datasetType)
+            double HtmPercentageSimilarity)> results, double max, string datasetType)
         {
             Plot knnPlot = new();
             
             var knnScatter = knnPlot.Add.Scatter(results.Keys.ToArray(),
-                results.Values.Select(result => result.KnnReconstructedInput/100).ToArray());
+                results.Values.Select(result => result.KnnReconstructedInput).ToArray());
 
             knnScatter.LegendText = "KNN Predictions";
             knnScatter.LineWidth = 0;
             knnScatter.MarkerSize = 10;
             knnScatter.MarkerColor = Colors.Blue;
             knnScatter.MarkerShape = MarkerShape.FilledCircle;
-
+            
+            knnPlot.Axes.SetLimits(0, max+1, 0, max+1);
             knnPlot.Title(datasetType + " - KNN - Reconstruction Predictions");
             knnPlot.XLabel("Input Values");
             knnPlot.YLabel("Predictions");
-            this.SavePlot(knnPlot, datasetType + "_KNN_ReconstructionPlot.png");
+            this.SavePlot(knnPlot, datasetType + "_KNN_ReconstructionPlot.png", max);
             
             Plot htmPlot = new();
             
             var htmScatter = htmPlot.Add.Scatter(results.Keys.ToArray(),
-                results.Values.Select(result => result.HtmReconstructedInput/100).ToArray());
+                results.Values.Select(result => result.HtmReconstructedInput).ToArray());
 
             htmScatter.LegendText = "HTM Predictions";
             htmScatter.LineWidth = 0;
             htmScatter.MarkerSize = 10;
             htmScatter.MarkerColor = Colors.Blue;
             htmScatter.MarkerShape = MarkerShape.FilledCircle;
+            
+            htmPlot.Axes.SetLimits(0, max+1, 0, max+1);
             htmPlot.Title(datasetType + " - HTM - Reconstruction Predictions");
             htmPlot.XLabel("Input Values");
             htmPlot.YLabel("Predictions");
-            this.SavePlot(htmPlot, datasetType + "_HTM_ReconstructionPlot.png");
+            this.SavePlot(htmPlot, datasetType + "_HTM_ReconstructionPlot.png", max);
         }
 
         /// <summary>
@@ -408,7 +426,7 @@ namespace NeoCortexApi.Experiments
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, string datasetType)
+            double HtmPercentageSimilarity)> results, double max, string datasetType)
         {
             Plot plot = new();
 
@@ -452,8 +470,9 @@ namespace NeoCortexApi.Experiments
             plot.Title(datasetType + " - Similarity Comparison");
             plot.XLabel("Input Values");
             plot.YLabel("Similarity (%)");
+            plot.Axes.SetLimits(0, max+1, 0, 105);
 
-            this.SavePlot(plot, datasetType + "_SimilarityPlot.png");
+            this.SavePlot(plot, datasetType + "_SimilarityPlot.png", max);
         }
 
         /// <summary>
@@ -462,25 +481,23 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         /// <param name="plot"></param>
         /// <param name="fileName"></param>
-        private void SavePlot(Plot plot, string fileName)
+        private void SavePlot(Plot plot, string fileName, double max)
         {
-            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
-            plot.Save(savePath, 1200, 800);
+            const int baseHeight = 600;
+            const int minWidth = 600;
+            const int maxWidth = 1200;
+    
+            // Calculate proportional width between 600-1200 based on max input value
+            double widthFactor = Math.Clamp((max - 10) / (100 - 10), 0, 1);
+            int dynamicWidth = (int)(minWidth + (maxWidth - minWidth) * widthFactor);
+
+            string savePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
+                fileName
+            );
+    
+            plot.Save(savePath, dynamicWidth, baseHeight);
             Console.WriteLine($"\nPlot saved at: {savePath}");
-        }
-
-        /// <summary>
-        ///     Calculates the Absolute Percentage Similarity between two given values
-        /// </summary>
-        /// <param name="value1">First value</param>
-        /// <param name="value2">Second value</param>
-        /// <returns>Calculates the Percentage Similarity between the given vales and returns the result between 0 -1</returns>
-        private double CalculatePercentageSimilarity(double value1, double value2)
-        {
-            double difference = Math.Abs(value1 - value2);
-            double similarity = 1 - (difference / Math.Max(value1, value2));
-
-            return Math.Round(similarity, 2);
         }
     }
 }
