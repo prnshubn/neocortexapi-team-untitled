@@ -97,10 +97,10 @@ namespace NeoCortexApi.Experiments
             List<double> inputValues = Enumerable.Range(1, (int)max).Select(i => (double)i).ToList();
 
             // Train the Spatial Pooler
-            SpatialPooler sp = this.TrainSpatialPooler(cfg, encoder, inputValues);
+            SpatialPooler sp = TrainSpatialPooler(cfg, encoder, inputValues);
 
             // Perform Reconstruction Experiment
-            this.RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
+            RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
         }
 
         /// <summary>
@@ -407,7 +407,7 @@ namespace NeoCortexApi.Experiments
             htmScatter.LegendText = "HTM Predictions";
             htmScatter.LineWidth = 0;
             htmScatter.MarkerSize = 10;
-            htmScatter.MarkerColor = Colors.Blue;
+            htmScatter.MarkerColor = Colors.Red;
             htmScatter.MarkerShape = MarkerShape.FilledCircle;
             
             htmPlot.Axes.SetLimits(0, max+1, 0, max+1);
