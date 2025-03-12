@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoCortexApi.Classifiers;
 using NeoCortexApi.Encoders;
 using NeoCortexApi.Entities;
@@ -35,8 +36,28 @@ namespace NeoCortexApi.Experiments
     ///     <see href="https://github.com/Akshay-Gudekar">Akshay Gudekar</see>
     /// </para>
     /// <para>
-    ///     To run/test the experiment please use the Test class - <b>SpatialPoolerInputReconstructionExperimentTests</b>
+    ///     Test cases are present in <b>SpatialPoolerInputReconstructionExperimentTests</b>
     /// </para>
+    /// <para>
+    ///     To run the experiment please use the "run" method in the "Run" Class.
+    /// </para>
+    
+    [TestClass]
+    public class ExperimentRunner
+    {
+        /// <summary>
+        ///    Runs the experiment.
+        /// </summary>
+        [TestMethod]
+        public void run()
+        {
+            SpatialPoolerInputReconstructionExperiment experiment = new();
+            
+            // Please provide value greater than 10
+            experiment.ReconstructionExperiment(10);
+        }
+    }
+    
     public class SpatialPoolerInputReconstructionExperiment
     {
         // Properties to store results
@@ -55,8 +76,10 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         /// <param name="max">Starting from 1 the maximum input you want to try reconstructing</param>
         /// <param name="seedValue">Needed later in reconstruction step to check if experiment is providing desired result</param>
-        public void RunExperiment(double max, int seedValue=0)
+        public void ReconstructionExperiment(double max, int seedValue=0)
         {
+            if (max < 10) throw new ArgumentException("max must be 10 or greater", nameof(max));
+            
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
 
             double minOctOverlapCycles = 1.0;
@@ -100,7 +123,7 @@ namespace NeoCortexApi.Experiments
             SpatialPooler sp = TrainSpatialPooler(cfg, encoder, inputValues);
 
             // Perform Reconstruction Experiment
-            RunReconstructionExperiment(sp, encoder, inputValues, seedValue);
+            ClassifierPart(sp, encoder, inputValues, seedValue);
         }
 
         /// <summary>
@@ -203,7 +226,7 @@ namespace NeoCortexApi.Experiments
         /// <param name="seedValue"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        private void RunReconstructionExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
+        private void ClassifierPart(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
             int seedValue)
         {
             if (sp == null)
@@ -353,8 +376,9 @@ namespace NeoCortexApi.Experiments
             }
 
             // Plot results
-            this.PlotReconstructionResults(Results, max, datasetType);
-            this.PlotSimilarityResults(Results, max, datasetType);
+            String path = PathToSavePlots();
+            this.PlotReconstructionResults(Results, max, datasetType, path);
+            this.PlotSimilarityResults(Results, max, datasetType, path);
         }
         
         /// <summary>
@@ -380,7 +404,7 @@ namespace NeoCortexApi.Experiments
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, double max, string datasetType)
+            double HtmPercentageSimilarity)> results, double max, string datasetType, string path)
         {
             Plot knnPlot = new();
             
@@ -397,7 +421,7 @@ namespace NeoCortexApi.Experiments
             knnPlot.Title(datasetType + " - KNN - Reconstruction Predictions");
             knnPlot.XLabel("Input Values");
             knnPlot.YLabel("Predictions");
-            this.SavePlot(knnPlot, datasetType + "_KNN_ReconstructionPlot.png", max);
+            this.SavePlot(knnPlot, datasetType + "_KNN_ReconstructionPlot.png", max, path);
             
             Plot htmPlot = new();
             
@@ -414,7 +438,7 @@ namespace NeoCortexApi.Experiments
             htmPlot.Title(datasetType + " - HTM - Reconstruction Predictions");
             htmPlot.XLabel("Input Values");
             htmPlot.YLabel("Predictions");
-            this.SavePlot(htmPlot, datasetType + "_HTM_ReconstructionPlot.png", max);
+            this.SavePlot(htmPlot, datasetType + "_HTM_ReconstructionPlot.png", max, path);
         }
 
         /// <summary>
@@ -426,7 +450,7 @@ namespace NeoCortexApi.Experiments
             double KnnInternalSimilarity,
             double HtmInternalSimilarity,
             double KnnPercentageSimilarity,
-            double HtmPercentageSimilarity)> results, double max, string datasetType)
+            double HtmPercentageSimilarity)> results, double max, string datasetType, string path)
         {
             Plot plot = new();
 
@@ -472,7 +496,7 @@ namespace NeoCortexApi.Experiments
             plot.YLabel("Similarity (%)");
             plot.Axes.SetLimits(0, max+1, 0, 105);
 
-            this.SavePlot(plot, datasetType + "_SimilarityPlot.png", max);
+            this.SavePlot(plot, datasetType + "_SimilarityPlot.png", max, path);
         }
 
         /// <summary>
@@ -481,7 +505,7 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         /// <param name="plot"></param>
         /// <param name="fileName"></param>
-        private void SavePlot(Plot plot, string fileName, double max)
+        private void SavePlot(Plot plot, string fileName, double max, string path)
         {
             const int baseHeight = 600;
             const int minWidth = 600;
@@ -491,13 +515,39 @@ namespace NeoCortexApi.Experiments
             double widthFactor = Math.Clamp((max - 10) / (100 - 10), 0, 1);
             int dynamicWidth = (int)(minWidth + (maxWidth - minWidth) * widthFactor);
 
-            string savePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
-                fileName
-            );
+            // Get the project root path dynamically
+            string saveDir = Path.Combine(path, "Generated_Plots");
+    
+            // Create directory if it doesn't exist
+            Directory.CreateDirectory(saveDir);
+
+            string savePath = Path.Combine(saveDir, fileName);
     
             plot.Save(savePath, dynamicWidth, baseHeight);
             Console.WriteLine($"\nPlot saved at: {savePath}");
+        }
+        
+        /// <summary>
+        ///     Finds the project root by searching upward for the "neocortexapi-team-untitled" folder
+        ///     and then saves the plot.
+        /// </summary>
+        private string PathToSavePlots()
+        {
+            DirectoryInfo dir = new (Directory.GetCurrentDirectory());
+            while (dir != null)
+            {
+                if (dir.GetDirectories("neocortexapi-team-untitled").Any())
+                {
+                    return Path.Combine(dir.FullName, "neocortexapi-team-untitled", 
+                        "source", 
+                        "Documentation_Team_Untitled");
+                }
+                dir = dir.Parent;
+            }
+    
+            // Fallback if not found
+            Console.WriteLine("Warning: Project root not found. Using desktop instead.");
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
     }
 }

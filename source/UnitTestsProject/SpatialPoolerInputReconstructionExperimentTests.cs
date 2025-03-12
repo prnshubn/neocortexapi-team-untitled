@@ -36,10 +36,26 @@ namespace UnitTestsProject
         [TestMethod]
         [Priority(1)]
         [TestCategory("Experiment")]
+        [TestCategory("SmokeTest")]
         public void Test_Experiment_Completes_Without_Exception()
         {
             SpatialPoolerInputReconstructionExperiment experiment = new();
-            experiment.RunExperiment(50);
+            experiment.ReconstructionExperiment(10);
+        }
+        
+        /// <summary>
+        ///     Tests that the Experiment terminates with improper value of max.
+        ///     This test is expected to throw an ArgumentException.
+        /// </summary>
+        [TestMethod]
+        [Priority(2)]
+        [TestCategory("Experiment")]
+        [TestCategory("ExceptionHandling")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Experiment_With_Improper_Max_Value()
+        {
+            SpatialPoolerInputReconstructionExperiment experiment = new();
+            experiment.ReconstructionExperiment(8);
         }
 
         /// <summary>
@@ -47,8 +63,9 @@ namespace UnitTestsProject
         ///     This test captures the console output and checks for the "STABLE STATE REACHED" message.
         /// </summary>
         [TestMethod]
-        [Priority(2)]
+        [Priority(3)]
         [TestCategory("Experiment")]
+        [TestCategory("SpatialPooler")]
         public void Test_SpatialPoolerTraining_ReachesStableState()
         {
             // Arrange
@@ -59,7 +76,7 @@ namespace UnitTestsProject
             Console.SetOut(consoleOutput);
 
             // Act
-            experiment.RunExperiment(10, 0);
+            experiment.ReconstructionExperiment(10);
 
             // Reset console output
             Console.SetOut(originalConsoleOut);
@@ -74,8 +91,9 @@ namespace UnitTestsProject
         ///     This test captures the console output and checks for reconstruction results.
         /// </summary>
         [TestMethod]
-        [Priority(3)]
+        [Priority(4)]
         [TestCategory("Experiment")]
+        [TestCategory("Reconstruction")]
         public void Test_Reconstruction_ProducesPredictions()
         {
             // Arrange
@@ -86,7 +104,7 @@ namespace UnitTestsProject
             Console.SetOut(consoleOutput);
 
             // Act
-            experiment.RunExperiment(10, 0);
+            experiment.ReconstructionExperiment(10);
 
             // Reset console output
             Console.SetOut(originalConsoleOut);
@@ -96,6 +114,25 @@ namespace UnitTestsProject
             Assert.IsTrue(output.Contains("KNN - Reconstructed Input"), "KNN predictions not found in output.");
             Assert.IsTrue(output.Contains("HTM - Reconstructed Input"), "HTM predictions not found in output.");
             Assert.IsTrue(output.Contains("Percentage Similarity"), "Similarity metrics not found in output.");
+        }
+        
+        /// <summary>
+        ///     Checks if reconstructed inputs from KNN/HTM have valid similarity scores (0-100%).
+        /// </summary>
+        [TestMethod]
+        [Priority(5)]
+        [TestCategory("Experiment")]
+        [TestCategory("ClassifierAccuracy")]
+        public void Test_ReconstructionPart_Results_Have_Valid_Similarity()
+        {
+            var experiment = new SpatialPoolerInputReconstructionExperiment();
+            experiment.ReconstructionExperiment(10);
+            
+            foreach (var result in experiment.Results.Values)
+            {
+                Assert.IsTrue(result.KnnPercentageSimilarity is >= 0 and <= 1, "Invalid KNN similarity.");
+                Assert.IsTrue(result.HtmPercentageSimilarity is >= 0 and <= 1, "Invalid HTM similarity.");
+            }
         }
     }
 }
