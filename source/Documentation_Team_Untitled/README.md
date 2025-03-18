@@ -25,7 +25,7 @@ In this Documentation we will describe our contribution in this project.
 - [Documentation](https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled)
 
 ###### All the output will be saved here
-- [neocortexapi_team.yet to make it ********]
+- [neocortexapi_team.yet to make it **********]
 
 ## Introduction
 This project explores the concept of input reconstruction using classifiers within HTM (Hierarchical Temporal Memory). The goal is to analyze how well HTM and KNN classifiers can reconstruct the original input based on Sparse Distributed Representations (SDRs). This investigation is inspired by the SpatialLearning experiment and extends it by incorporating input reconstruction.
