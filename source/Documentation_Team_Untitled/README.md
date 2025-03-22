@@ -433,3 +433,5 @@ We tested SpatialPoolerInputReconstructionExperimentTests.cs with 5 test cases, 
 ### Test_ReconstructionPart_Results_Have_Valid_Similarity
 - **Test Category:** ReconstructionAccuracy
 - **Description:** Validates that similarity scores between reconstructed and actual inputs fall within the valid range (0% - 100%). Ensures that both HTM and KNN classifiers return meaningful predictions.
+
+-Team Untilted
