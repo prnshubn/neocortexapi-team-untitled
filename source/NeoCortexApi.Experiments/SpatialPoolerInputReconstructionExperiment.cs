@@ -54,12 +54,15 @@ namespace NeoCortexApi.Experiments
             SpatialPoolerInputReconstructionExperiment experiment = new();
             
             // Please provide value greater than 10
-            experiment.ReconstructionExperiment(100);
+            experiment.ReconstructionExperiment(10);
         }
     }
     
     public class SpatialPoolerInputReconstructionExperiment
     {
+        // Add this new private field to track output file path
+        private string outputFilePath;
+        
         // Properties to store results
         public Dictionary<double, (double KnnReconstructedInput,
                 double HtmReconstructedInput,
@@ -81,7 +84,7 @@ namespace NeoCortexApi.Experiments
             if (max < 10) throw new ArgumentException("max must be 10 or greater", nameof(max));
             
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
-
+            InitializeOutputFile();
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
             int inputBits = 200;
@@ -176,6 +179,14 @@ namespace NeoCortexApi.Experiments
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
+                string cycleInfo = $"Cycle {cycle:D4} Stability: {isInStableState}";
+                Console.WriteLine(cycleInfo);
+                
+                // Write last stable state to file
+                if (isInStableState)
+                {
+                    UpdateOutputFile(cycleInfo);
+                }
                 Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
 
                 // This trains the layer on input pattern
@@ -211,7 +222,9 @@ namespace NeoCortexApi.Experiments
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"\nSpatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms");
+            string trainingTime = $"\nSpatial Pooler Training Time: {stopwatch.ElapsedMilliseconds} ms";
+            Console.WriteLine(trainingTime);
+            UpdateOutputFile(trainingTime);
             return sp;
         }
 
@@ -290,8 +303,14 @@ namespace NeoCortexApi.Experiments
 
             stopwatch.Stop();
             Console.WriteLine("\nClassifier Training Complete");
-            Console.WriteLine($"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms");
-
+            string classifierTime = $"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms";
+            Console.WriteLine(classifierTime);
+            
+            // Write classifier training info to file
+            UpdateOutputFile("\nClassifier Training Complete");
+            UpdateOutputFile(classifierTime);
+            
+            
             // Run the Reconstruction on test data - the data which was not used to train the classifiers
             this.ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Test");
 
@@ -314,11 +333,15 @@ namespace NeoCortexApi.Experiments
             KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier,
             double max, string datasetType)
         {
+            // Initialize output file
+            InitializeOutputFile();
             Results.Clear();
             foreach (double data in dataset)
             {
                 Console.WriteLine($"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}");
-
+                // Write to file
+                File.AppendAllText(outputFilePath, $"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}\n");
+                
                 // Generate SDR using the trained SP
                 int[] sdr = encoder.Encode(data);
                 int[] actCols = sp.Compute(sdr, false);
@@ -348,19 +371,31 @@ namespace NeoCortexApi.Experiments
                     $"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
                 Console.WriteLine(
                     $"HTM - Percentage Similarity: {htmPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}");
+                
+                // Write to file
+                File.AppendAllText(outputFilePath, $"KNN - Reconstructed Input: {knnPrediction.PredictedInput}\n");
+                File.AppendAllText(outputFilePath, $"KNN - Internal Similarity: {knnPrediction.Similarity.ToString("P", CultureInfo.InvariantCulture)}\n");
+                File.AppendAllText(outputFilePath, $"KNN - Percentage Similarity: {knnPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}\n");
+                File.AppendAllText(outputFilePath, $"HTM - Reconstructed Input: {htmPrediction.PredictedInput}\n");
+                File.AppendAllText(outputFilePath, $"HTM - Internal Similarity: {htmNormalizedSimilarity.ToString("P", CultureInfo.InvariantCulture)}\n");
+                File.AppendAllText(outputFilePath, $"HTM - Percentage Similarity: {htmPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}\n");
+                File.AppendAllText(outputFilePath, $"HTM - Percentage Similarity: {htmPercentageSimilarity.ToString("P", CultureInfo.InvariantCulture)}\n");
 
                 // Add per-input comparison
                 if (htmPercentageSimilarity > knnPercentageSimilarity)
                 {
                     Console.WriteLine("Based on PercentageSimilarity - HTM performed better for this input");
+                    File.AppendAllText(outputFilePath, "Based on PercentageSimilarity - HTM performed better for this input\n");
                 }
                 else if (htmPercentageSimilarity < knnPercentageSimilarity)
                 {
                     Console.WriteLine("Based on PercentageSimilarity - KNN performed better for this input");
+                    File.AppendAllText(outputFilePath, "Based on PercentageSimilarity - KNN performed better for this input\n");
                 }
                 else
                 {
                     Console.WriteLine("Based on PercentageSimilarity - Both performed similar for this input");
+                    File.AppendAllText(outputFilePath, "Based on PercentageSimilarity - Both performed similar for this input\n");
                 }
 
                 // Store results for visualisations
@@ -380,6 +415,52 @@ namespace NeoCortexApi.Experiments
             this.PlotReconstructionResults(Results, max, datasetType, path);
             this.PlotSimilarityResults(Results, max, datasetType, path);
         }
+        /// <summary>
+        ///     Initializes the output file with experiment header
+        /// </summary>
+        private void InitializeOutputFile()
+        {
+            if (outputFilePath == null)
+            {
+                string path = PathToSaveOutput();
+                Directory.CreateDirectory(path);
+                outputFilePath = Path.Combine(path, "output.txt");
+                
+                // Write initial experiment info
+                File.WriteAllText(outputFilePath, $"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}\n");
+            }
+        }
+        /// <summary>
+        ///     Updates the output file with cycle and timing information
+        /// </summary>
+        private void UpdateOutputFile(string content)
+        {
+            File.AppendAllText(outputFilePath, content + "\n");
+        }
+        
+        /// <summary>
+        ///     Gets the path for output visualization directory
+        /// </summary>
+        private string PathToSaveOutput()
+        {
+            DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (dir != null)
+            {
+                if (dir.GetDirectories("neocortexapi-team-untitled").Any())
+                {
+                    return Path.Combine(dir.FullName, "neocortexapi-team-untitled", 
+                        "source", 
+                        "Documentation_Team_Untitled",
+                        "Generated_Output");
+                }
+                dir = dir.Parent;
+            }
+            
+            // Fallback path
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Generated_Output");
+        }
+        
+        
         
         /// <summary>
         ///     Calculates the Absolute Percentage Similarity between two given values
