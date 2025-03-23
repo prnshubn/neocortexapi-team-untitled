@@ -54,7 +54,7 @@ namespace NeoCortexApi.Experiments
             SpatialPoolerInputReconstructionExperiment experiment = new();
             
             // Please provide value greater than 10
-            experiment.ReconstructionExperiment(10);
+            experiment.ReconstructionExperiment(100);
         }
     }
     
@@ -340,8 +340,9 @@ namespace NeoCortexApi.Experiments
             foreach (double data in dataset)
             {
                 Console.WriteLine($"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}");
-                
+
                 // Write to file
+                UpdateOutputFile("");
                 UpdateOutputFile($"Input: {data.ToString("F", CultureInfo.InvariantCulture)}");
                 
                 // Generate SDR using the trained SP

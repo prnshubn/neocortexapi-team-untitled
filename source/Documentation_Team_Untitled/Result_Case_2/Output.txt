@@ -1,0 +1,461 @@
+Hello NeocortexApi! Experiment SpatialPoolerInputReconstructionExperiment
+Cycle 0092 Stability: True
+Cycle 0093 Stability: True
+Cycle 0094 Stability: True
+Cycle 0095 Stability: True
+Cycle 0096 Stability: True
+
+Spatial Pooler Training Time: 81281 ms
+
+Classifier Training Complete
+Classifier Training Time: 250 ms
+
+Input: 28.00
+KNN - Reconstructed Input: 29.00
+KNN - Internal Similarity: 75.00 %
+KNN - Percentage Similarity: 97.00 %
+HTM - Reconstructed Input: 29.00
+HTM - Internal Similarity: 75.00 %
+HTM - Percentage Similarity: 97.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 48.00
+KNN - Reconstructed Input: 49.00
+KNN - Internal Similarity: 60.00 %
+KNN - Percentage Similarity: 98.00 %
+HTM - Reconstructed Input: 49.00
+HTM - Internal Similarity: 60.00 %
+HTM - Percentage Similarity: 98.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 18.00
+KNN - Reconstructed Input: 13.00
+KNN - Internal Similarity: 5.00 %
+KNN - Percentage Similarity: 72.00 %
+HTM - Reconstructed Input: 17.00
+HTM - Internal Similarity: 50.00 %
+HTM - Percentage Similarity: 94.00 %
+Based on PercentageSimilarity - HTM performed better for this input
+
+Input: 31.00
+KNN - Reconstructed Input: 32.00
+KNN - Internal Similarity: 65.00 %
+KNN - Percentage Similarity: 97.00 %
+HTM - Reconstructed Input: 32.00
+HTM - Internal Similarity: 65.00 %
+HTM - Percentage Similarity: 97.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 22.00
+KNN - Reconstructed Input: 23.00
+KNN - Internal Similarity: 55.00 %
+KNN - Percentage Similarity: 96.00 %
+HTM - Reconstructed Input: 23.00
+HTM - Internal Similarity: 55.00 %
+HTM - Percentage Similarity: 96.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 15.00
+KNN - Reconstructed Input: 16.00
+KNN - Internal Similarity: 55.00 %
+KNN - Percentage Similarity: 94.00 %
+HTM - Reconstructed Input: 16.00
+HTM - Internal Similarity: 55.00 %
+HTM - Percentage Similarity: 94.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 9.00
+KNN - Reconstructed Input: 8.00
+KNN - Internal Similarity: 55.00 %
+KNN - Percentage Similarity: 89.00 %
+HTM - Reconstructed Input: 8.00
+HTM - Internal Similarity: 55.00 %
+HTM - Percentage Similarity: 89.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 10.00
+KNN - Reconstructed Input: 5.00
+KNN - Internal Similarity: 0.00 %
+KNN - Percentage Similarity: 50.00 %
+HTM - Reconstructed Input: 11.00
+HTM - Internal Similarity: 30.00 %
+HTM - Percentage Similarity: 91.00 %
+Based on PercentageSimilarity - HTM performed better for this input
+
+Input: 35.00
+KNN - Reconstructed Input: 34.00
+KNN - Internal Similarity: 60.00 %
+KNN - Percentage Similarity: 97.00 %
+HTM - Reconstructed Input: 34.00
+HTM - Internal Similarity: 60.00 %
+HTM - Percentage Similarity: 97.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 12.00
+KNN - Reconstructed Input: 11.00
+KNN - Internal Similarity: 60.00 %
+KNN - Percentage Similarity: 92.00 %
+HTM - Reconstructed Input: 11.00
+HTM - Internal Similarity: 60.00 %
+HTM - Percentage Similarity: 92.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 47.00
+KNN - Reconstructed Input: 47.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 47.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 6.00
+KNN - Reconstructed Input: 6.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 6.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 3.00
+KNN - Reconstructed Input: 3.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 3.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 42.00
+KNN - Reconstructed Input: 42.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 42.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 38.00
+KNN - Reconstructed Input: 38.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 38.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 13.00
+KNN - Reconstructed Input: 13.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 13.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 7.00
+KNN - Reconstructed Input: 7.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 7.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 41.00
+KNN - Reconstructed Input: 41.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 41.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 19.00
+KNN - Reconstructed Input: 19.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 19.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 32.00
+KNN - Reconstructed Input: 32.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 32.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 43.00
+KNN - Reconstructed Input: 43.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 43.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 14.00
+KNN - Reconstructed Input: 14.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 14.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 37.00
+KNN - Reconstructed Input: 37.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 37.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 11.00
+KNN - Reconstructed Input: 11.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 11.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 36.00
+KNN - Reconstructed Input: 36.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 36.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 17.00
+KNN - Reconstructed Input: 17.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 17.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 44.00
+KNN - Reconstructed Input: 44.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 44.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 2.00
+KNN - Reconstructed Input: 2.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 2.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 16.00
+KNN - Reconstructed Input: 16.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 16.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 5.00
+KNN - Reconstructed Input: 5.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 5.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 34.00
+KNN - Reconstructed Input: 34.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 34.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 27.00
+KNN - Reconstructed Input: 27.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 27.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 29.00
+KNN - Reconstructed Input: 29.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 29.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 40.00
+KNN - Reconstructed Input: 40.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 40.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 8.00
+KNN - Reconstructed Input: 8.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 8.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 24.00
+KNN - Reconstructed Input: 24.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 24.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 26.00
+KNN - Reconstructed Input: 26.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 26.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 1.00
+KNN - Reconstructed Input: 1.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 1.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 50.00
+KNN - Reconstructed Input: 50.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 50.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 49.00
+KNN - Reconstructed Input: 49.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 49.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 25.00
+KNN - Reconstructed Input: 25.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 25.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 45.00
+KNN - Reconstructed Input: 45.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 45.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 20.00
+KNN - Reconstructed Input: 20.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 20.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 4.00
+KNN - Reconstructed Input: 4.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 4.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 46.00
+KNN - Reconstructed Input: 46.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 46.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 23.00
+KNN - Reconstructed Input: 23.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 23.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 21.00
+KNN - Reconstructed Input: 21.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 21.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 33.00
+KNN - Reconstructed Input: 33.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 33.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 39.00
+KNN - Reconstructed Input: 39.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 39.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 30.00
+KNN - Reconstructed Input: 30.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 30.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
