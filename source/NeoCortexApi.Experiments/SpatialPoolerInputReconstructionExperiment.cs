@@ -183,14 +183,14 @@ namespace NeoCortexApi.Experiments
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
                 string cycleInfo = $"Cycle {cycle:D4} Stability: {isInStableState}";
-                Console.WriteLine(cycleInfo);
+                Debug.WriteLine(cycleInfo);
                 
                 // Write last stable state to file
                 if (isInStableState)
                 {
                     UpdateOutputFile(cycleInfo);
                 }
-                Console.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
+                Debug.WriteLine($"Cycle {cycle:D4} Stability: {isInStableState}");
 
                 // This trains the layer on input pattern
                 foreach (double input in inputs)
@@ -206,7 +206,7 @@ namespace NeoCortexApi.Experiments
 
                     double similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
 
-                    Console.WriteLine(
+                    Debug.WriteLine(
                         $"[cycle={cycle.ToString("D4")}, i={input}, cols=:{actCols.Length} s={similarity}] SDR: {Helpers.StringifyVector(actCols)}");
 
                     prevActiveCols[input] = activeColumns;
@@ -305,12 +305,14 @@ namespace NeoCortexApi.Experiments
             }
 
             stopwatch.Stop();
-            Console.WriteLine("\nClassifier Training Complete");
+
             string classifierTime = $"Classifier Training Time: {stopwatch.ElapsedMilliseconds} ms";
+            
+            Console.WriteLine("\nClassifier Training Complete");
             Console.WriteLine(classifierTime);
             
             // Write classifier training info to file
-            UpdateOutputFile("\nClassifier Training Complete");
+            UpdateOutputFile("Classifier Training Complete");
             UpdateOutputFile(classifierTime);
             
             
@@ -336,14 +338,16 @@ namespace NeoCortexApi.Experiments
             KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier,
             double max, string datasetType)
         {
+            
+            Console.WriteLine($"\n----- Start of {datasetType} data reconstruction -----");
+            UpdateOutputFile($"\n----- Start of {datasetType} data reconstruction -----");
+            
             Results.Clear();
+            
             foreach (double data in dataset)
             {
                 Console.WriteLine($"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}");
-
-                // Write to file
-                UpdateOutputFile("");
-                UpdateOutputFile($"Input: {data.ToString("F", CultureInfo.InvariantCulture)}");
+                UpdateOutputFile($"\nInput: {data.ToString("F", CultureInfo.InvariantCulture)}");
                 
                 // Generate SDR using the trained SP
                 int[] sdr = encoder.Encode(data);
@@ -412,11 +416,16 @@ namespace NeoCortexApi.Experiments
                 );
 
             }
+            
+            Console.WriteLine($"\n----- End of {datasetType} data reconstruction -----");
+            UpdateOutputFile($"\n----- End of {datasetType} data reconstruction -----");
 
             // Plot results
             String path = PathToSavePlots();
             this.PlotReconstructionResults(Results, max, datasetType, path);
             this.PlotSimilarityResults(Results, max, datasetType, path);
+            
+            Console.WriteLine($"\nOutput file saved at: {outputFilePath}");
         }
         
         /// <summary>
@@ -424,15 +433,12 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         private void InitializeOutputFile()
         {
-            if (outputFilePath == null)
-            {
                 string path = PathToSaveOutput();
                 Directory.CreateDirectory(path);
                 outputFilePath = Path.Combine(path, "Output.txt");
                 
                 // Write initial experiment info
                 File.WriteAllText(outputFilePath, $"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
-            }
         }
         
         /// <summary>
@@ -448,7 +454,7 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         private string PathToSaveOutput()
         {
-            DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+            DirectoryInfo dir = new (Directory.GetCurrentDirectory());
             while (dir != null)
             {
                 if (dir.GetDirectories("neocortexapi-team-untitled").Any())
@@ -609,6 +615,7 @@ namespace NeoCortexApi.Experiments
     
             plot.Save(savePath, dynamicWidth, baseHeight);
             Console.WriteLine($"\nPlot saved at: {savePath}");
+            UpdateOutputFile($"Plot saved at: {savePath}");
         }
         
         /// <summary>
