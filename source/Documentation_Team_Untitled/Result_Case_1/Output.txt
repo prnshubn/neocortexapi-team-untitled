@@ -1,0 +1,204 @@
+Hello NeocortexApi! Experiment SpatialPoolerInputReconstructionExperiment
+Cycle 0090 Stability: True
+Cycle 0091 Stability: True
+Cycle 0092 Stability: True
+Cycle 0093 Stability: True
+Cycle 0094 Stability: True
+
+Spatial Pooler Training Time: 78991 ms
+Classifier Training Complete
+Classifier Training Time: 256 ms
+
+----- Start of Test data reconstruction -----
+
+Input: 3.00
+KNN - Reconstructed Input: 20.00
+KNN - Internal Similarity: 0.00 %
+KNN - Percentage Similarity: 15.00 %
+HTM - Reconstructed Input: 4.00
+HTM - Internal Similarity: 15.00 %
+HTM - Percentage Similarity: 75.00 %
+Based on PercentageSimilarity - HTM performed better for this input
+
+Input: 17.00
+KNN - Reconstructed Input: 16.00
+KNN - Internal Similarity: 15.00 %
+KNN - Percentage Similarity: 94.00 %
+HTM - Reconstructed Input: 18.00
+HTM - Internal Similarity: 30.00 %
+HTM - Percentage Similarity: 94.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 13.00
+KNN - Reconstructed Input: 10.00
+KNN - Internal Similarity: 5.00 %
+KNN - Percentage Similarity: 77.00 %
+HTM - Reconstructed Input: 12.00
+HTM - Internal Similarity: 20.00 %
+HTM - Percentage Similarity: 92.00 %
+Based on PercentageSimilarity - HTM performed better for this input
+
+Input: 1.00
+KNN - Reconstructed Input: 19.00
+KNN - Internal Similarity: 0.00 %
+KNN - Percentage Similarity: 5.00 %
+HTM - Reconstructed Input: 2.00
+HTM - Internal Similarity: 15.00 %
+HTM - Percentage Similarity: 50.00 %
+Based on PercentageSimilarity - HTM performed better for this input
+
+----- End of Test data reconstruction -----
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Test_KNN_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Test_HTM_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Test_SimilarityPlot.png
+
+----- Start of Train data reconstruction -----
+
+Input: 19.00
+KNN - Reconstructed Input: 19.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 19.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 12.00
+KNN - Reconstructed Input: 12.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 12.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 4.00
+KNN - Reconstructed Input: 4.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 4.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 18.00
+KNN - Reconstructed Input: 18.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 18.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 9.00
+KNN - Reconstructed Input: 9.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 9.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 8.00
+KNN - Reconstructed Input: 8.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 8.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 7.00
+KNN - Reconstructed Input: 7.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 7.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 11.00
+KNN - Reconstructed Input: 11.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 11.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 5.00
+KNN - Reconstructed Input: 5.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 5.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 6.00
+KNN - Reconstructed Input: 6.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 6.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 15.00
+KNN - Reconstructed Input: 15.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 15.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 20.00
+KNN - Reconstructed Input: 20.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 20.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 14.00
+KNN - Reconstructed Input: 14.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 14.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 2.00
+KNN - Reconstructed Input: 2.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 2.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 10.00
+KNN - Reconstructed Input: 10.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 10.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 16.00
+KNN - Reconstructed Input: 16.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 16.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+----- End of Train data reconstruction -----
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Train_KNN_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Train_HTM_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Documentation_Team_Untitled\Generated_Plots\Train_SimilarityPlot.png
