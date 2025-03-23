@@ -51,11 +51,13 @@ namespace UnitTestsProject
         [Priority(2)]
         [TestCategory("Experiment")]
         [TestCategory("ExceptionHandling")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_Experiment_With_Improper_Max_Value()
+        public void Test_Experiment_With_Improper_Max_Value() 
         {
-            SpatialPoolerInputReconstructionExperiment experiment = new();
-            experiment.ReconstructionExperiment(8);
+            var experiment = new SpatialPoolerInputReconstructionExperiment();
+            var ex = Assert.ThrowsException<ArgumentException>(() => experiment.ReconstructionExperiment(8));
+    
+            // Explicitly check error message
+            Assert.IsTrue(ex.Message.Contains("max must be 10 or greater"), "Error message should specify min max value.");
         }
 
         /// <summary>

@@ -54,7 +54,7 @@ namespace NeoCortexApi.Experiments
             SpatialPoolerInputReconstructionExperiment experiment = new();
             
             // Please provide value greater than 10
-            experiment.ReconstructionExperiment(100);
+            experiment.ReconstructionExperiment(20);
         }
     }
     
@@ -121,15 +121,17 @@ namespace NeoCortexApi.Experiments
                 { "Name", "scalar" },
                 { "ClipInput", false }
             };
-
+            
             EncoderBase encoder = new ScalarEncoder(settings);
+            
+            // Generating a list of scalar inputs from 1 to max
             List<double> inputValues = Enumerable.Range(1, (int)max).Select(i => (double)i).ToList();
 
             // Train the Spatial Pooler
             SpatialPooler sp = TrainSpatialPooler(cfg, encoder, inputValues);
 
             // Perform Reconstruction Experiment
-            ClassifierPart(sp, encoder, inputValues, seedValue);
+            CompareClassifiers(sp, encoder, inputValues, seedValue);
         }
 
         /// <summary>
@@ -242,7 +244,7 @@ namespace NeoCortexApi.Experiments
         /// <param name="seedValue"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        private void ClassifierPart(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
+        private void CompareClassifiers(SpatialPooler sp, EncoderBase encoder, List<double> inputValues,
             int seedValue)
         {
             if (sp == null)
@@ -317,10 +319,10 @@ namespace NeoCortexApi.Experiments
             
             
             // Run the Reconstruction on test data - the data which was not used to train the classifiers
-            this.ReconstructionPart(testDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Test");
+            this.ReconstructInput(testDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Test");
 
             // Run the Reconstruction on training data - the data which was used to train the classifiers
-            this.ReconstructionPart(trainDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Train");
+            this.ReconstructInput(trainDataSet, encoder, sp, knnClassifier, htmClassifier, inputValues.Max(), "Train");
         }
 
         /// <summary>
@@ -334,7 +336,7 @@ namespace NeoCortexApi.Experiments
         /// <param name="knnClassifier">The KNN classifier used for reconstruction</param>
         /// <param name="htmClassifier">The HTM classifier used for reconstruction</param>
         /// <param name="datasetType">The type of dataset ("Train" or "Test")</param>
-        private void ReconstructionPart(List<double> dataset, EncoderBase encoder, SpatialPooler sp,
+        private void ReconstructInput(List<double> dataset, EncoderBase encoder, SpatialPooler sp,
             KNeighborsClassifier<string, string> knnClassifier, HtmClassifier<string, string> htmClassifier,
             double max, string datasetType)
         {
@@ -421,7 +423,7 @@ namespace NeoCortexApi.Experiments
             UpdateOutputFile($"\n----- End of {datasetType} data reconstruction -----");
 
             // Plot results
-            String path = PathToSavePlots();
+            String path = this.PathToSave();
             this.PlotReconstructionResults(Results, max, datasetType, path);
             this.PlotSimilarityResults(Results, max, datasetType, path);
             
@@ -433,42 +435,26 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         private void InitializeOutputFile()
         {
-                string path = PathToSaveOutput();
-                Directory.CreateDirectory(path);
-                outputFilePath = Path.Combine(path, "Output.txt");
-                
-                // Write initial experiment info
-                File.WriteAllText(outputFilePath, $"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
+            string path = PathToSave();
+            
+            // Get the project root path dynamically
+            string saveDir = Path.Combine(path, "Generated_Output");
+    
+            // Create directory if it doesn't exist
+            Directory.CreateDirectory(saveDir);
+            
+            outputFilePath = Path.Combine(saveDir, "Output.txt");
+            
+            // Write initial experiment info
+            File.WriteAllText(outputFilePath, $"Hello NeocortexApi! Experiment {nameof(SpatialPoolerInputReconstructionExperiment)}");
         }
         
         /// <summary>
-        ///     Updates the output file with cycle and timing information
+        ///     Updates the output file with required information
         /// </summary>
         private void UpdateOutputFile(string content)
         {
             File.AppendAllText(outputFilePath, "\n"+content);
-        }
-        
-        /// <summary>
-        ///     Gets the path for output visualization directory
-        /// </summary>
-        private string PathToSaveOutput()
-        {
-            DirectoryInfo dir = new (Directory.GetCurrentDirectory());
-            while (dir != null)
-            {
-                if (dir.GetDirectories("neocortexapi-team-untitled").Any())
-                {
-                    return Path.Combine(dir.FullName, "neocortexapi-team-untitled", 
-                        "source", 
-                        "Documentation_Team_Untitled",
-                        "Generated_Output");
-                }
-                dir = dir.Parent;
-            }
-            
-            // Fallback path
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Generated_Output");
         }
         
         /// <summary>
@@ -622,7 +608,7 @@ namespace NeoCortexApi.Experiments
         ///     Finds the project root by searching upward for the "neocortexapi-team-untitled" folder
         ///     and then saves the plot.
         /// </summary>
-        private string PathToSavePlots()
+        private string PathToSave()
         {
             DirectoryInfo dir = new (Directory.GetCurrentDirectory());
             while (dir != null)
