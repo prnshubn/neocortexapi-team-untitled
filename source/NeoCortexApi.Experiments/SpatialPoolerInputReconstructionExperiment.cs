@@ -54,7 +54,7 @@ namespace NeoCortexApi.Experiments
             SpatialPoolerInputReconstructionExperiment experiment = new();
             
             // Please provide value greater than 10
-            experiment.ReconstructionExperiment(20);
+            experiment.ReconstructionExperiment(50);
         }
     }
     
