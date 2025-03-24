@@ -16,6 +16,45 @@ Here we will describe our contribution to this project.
 
 - [Documentation](https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled)
 
+### Project Folder Structure
+```bash
+neocortexapi-team-untitled
+│
+├── source
+│   │
+│   ├── NeoCortexApi.Experiments/
+│   │   ├── SpatialPoolerInputReconstructionExperiment.cs
+│   │
+│   ├── UnitTestsProject/
+│   │   │── SpatialPoolerInputReconstructionExperimentTests.cs
+│   │   
+│   ├── Documentation_Team_Untitled/
+│   │   ├── Project_Reports/
+│   │   │   ├── Research_Paper_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.docx
+│   │   │   ├── Research_Paper_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.pdf
+│   │   │   ├── Video_Presentation_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.mp4
+│   │   │   ├── Presentation_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.pptx
+│   │   │   ├── Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png
+│   │   │
+│   │   ├── Generated_Output/
+│   │   │   ├── # This folder stores the generated Output.txt file everytime when the experiment runs
+│   │   │
+│   │   ├── Generated_Plots/
+│   │   │   ├── # This folder stores the generated plots everytime when the experiment runs 
+│   │   │
+│   │   ├── Result_Case_1/
+│   │   │   ├── # Contains generated plots and Output.txt file for inputs 1-20
+│   │   │
+│   │   ├── Result_Case_2/
+│   │   │   ├── # Contains generated plots and Output.txt file for inputs 1-50
+│   │   │
+│   │   ├── Result_Case_3/
+│   │   │   ├── # Contains generated plots and Output.txt file for inputs 1-100
+│   │   │
+
+```
+
+
 ## Introduction
 This experiment investigates the concept of input reconstruction using classifiers - HTM & KNN. The goal is to analyze how well HTM and KNN can reconstruct the original input based on Sparse Distributed Representations (SDRs) stabilized by Spatial Pooler (SP). The Spatial Learning experiment inspires this investigation and extends it by incorporating input reconstruction.
 
@@ -27,7 +66,7 @@ Once the SDRs are generated from the Spatial Pooler, both the classifiers — HT
 To evaluate classifier performance, the results are visualized through similarity graphs. These visualizations show the accuracy of HTM and KNN predictions in reconstructing inputs from SDRs. By comparing their performance, we gain insights into which classifier is more effective for input reconstruction. The findings contribute to a better understanding of classification-based reconstruction techniques and their potential for enhancing Sparse Distributed Representations in machine learning applications.
 
 **Methodology Flowchart**
-![Methodology Flowchart](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Initial%20flow%20understanding.png)
+![Methodology Flowchart](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Project_Reports/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png)
 
 ## Difference between the classifiers
 
@@ -459,3 +498,6 @@ We tested with 5 test cases, and all passed successfully. These tests validate t
 ### [Test_ReconstructionPart_Results_Have_Valid_Similarity](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs#L128-L138)
 - **Test Category:** ReconstructionAccuracy
 - **Description:** Validates that similarity scores between reconstructed and actual inputs fall within the valid range (0% - 100%). Ensures that both HTM and KNN classifiers return meaningful predictions.
+
+
+
