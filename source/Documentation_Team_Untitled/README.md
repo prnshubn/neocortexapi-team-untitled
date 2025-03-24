@@ -65,9 +65,11 @@ Once the SDRs are generated from the Spatial Pooler, both the classifiers — HT
 
 To evaluate classifier performance, the results are visualized through similarity graphs. These visualizations show the accuracy of HTM and KNN predictions in reconstructing inputs from SDRs. By comparing their performance, we gain insights into which classifier is more effective for input reconstruction. The findings contribute to a better understanding of classification-based reconstruction techniques and their potential for enhancing Sparse Distributed Representations in machine learning applications.
 
-**Methodology Flowchart**
-![Methodology Flowchart](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Project_Reports/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png)
+## Methodology Flowchart
 
+<p align="left">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Project_Reports/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
+  
 ## Difference between the classifiers
 
 - **HTM Classifier (Hierarchical Temporal Memory):** This classifier learns temporal patterns over time. It associates SDRs with input values and refines its predictions as more data is observed.
