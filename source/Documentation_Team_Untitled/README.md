@@ -29,11 +29,14 @@ neocortexapi-team-untitled
 │   │   │── SpatialPoolerInputReconstructionExperimentTests.cs
 │   │   
 │   ├── Documentation_Team_Untitled/
+│   │   │── Media_Release_Forms/
+│   │   │   ├── # Contains the media release forms of the three contributors
+│   │   │
 │   │   ├── Project_Reports/
-│   │   │   ├── Research_Paper_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.docx
-│   │   │   ├── Research_Paper_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.pdf
-│   │   │   ├── Video_Presentation_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.mp4
-│   │   │   ├── Presentation_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.pptx
+│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Presentation.pptx
+│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.pdf
+│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Video.mp4
+│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.docx
 │   │   │   ├── Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png
 │   │   │
 │   │   ├── Generated_Output/
