@@ -7,7 +7,9 @@
 Here we will describe our contribution to this project.
 
 #### Instruction for running the experiment
-- Clone the Repository and run the ExperimentRunner inside [SpatialPoolerInputReconstructionExperiment](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/NeoCortexApi.Experiments/SpatialPoolerInputReconstructionExperiment.cs)
+- Clone the Repository
+- Build the Project
+- Run the ExperimentRunner inside [SpatialPoolerInputReconstructionExperiment](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/NeoCortexApi.Experiments/SpatialPoolerInputReconstructionExperiment.cs)
 
 #### Our Code Contributions
 - [SpatialPoolerInputReconstructionExperiment](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/NeoCortexApi.Experiments/SpatialPoolerInputReconstructionExperiment.cs): The implementation of the Spatial Pooler Input Reconstruction Experiment.
