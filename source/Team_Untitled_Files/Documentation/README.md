@@ -448,40 +448,40 @@ Calculates the Absolute Percentage Similarity between two values, returning a re
 ```
 ## Result Analysis
 
-### [Case 1: Inputs 1 - 20](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Results_Case_1.xlsx)
+### [Case 1: Inputs 1 - 20](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Results_Case_1.xlsx)
 
 As we discussed before, we divide the input set into two subsets with 80:20 split. As the number of inputs is 20, the 80:20 split makes number of training data 16 and testing data 4. The below set of graphs represent the 20% data which was purely used for testing and was unseen to the classifiers. Hence the reconstructions are not perfect. We can also notice that the HTM Classifier performed better than the KNN Classifier.
 
 <p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Test_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Test_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Test_KNN_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_HTM_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_SimilarityPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_KNN_ReconstructionPlot.png" width="33%">
 </p>
 
 The below set of data is the rest 80% which was used to train the classifiers. Here we can notice that the reconstruction is perfect with no deviation and both the classifiers performed with 100% similarity.
 
 <p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Train_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_SimilarityPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="33%">
 </p>
 
-### [Case 2: Inputs 1 - 50](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Results_Case_2.xlsx)
+### [Case 2: Inputs 1 - 50](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Results_Case_2.xlsx)
 
 For the second case, we took 50 inputs. With the 80:20 split, the number of training data is 40 and testing data is 10. The below set of graphs represent the 20% data which was purely used for testing and was unseen to the classifiers. Hence the reconstructions are not perfect. Here also the HTM Classifier performed much better than the KNN Classifier.
 
 <p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Test_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Test_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Test_KNN_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_HTM_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_SimilarityPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_KNN_ReconstructionPlot.png" width="33%">
 </p>
 
 The below set of data is the rest 80% which was used to train the classifiers. In this case also we notice that the reconstruction is perfect with no deviation and both the classifiers performed perfectly.
 
 <p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Train_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Train_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Result_Case_2/Train_KNN_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_HTM_ReconstructionPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_SimilarityPlot.png" width="33%">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_KNN_ReconstructionPlot.png" width="33%">
 </p>
 
 ## Unit Tests - [SpatialPoolerInputReconstructionExperimentTests](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs)
