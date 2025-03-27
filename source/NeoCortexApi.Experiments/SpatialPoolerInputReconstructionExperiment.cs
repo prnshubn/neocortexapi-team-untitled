@@ -17,7 +17,7 @@ namespace NeoCortexApi.Experiments
 {
     /// <summary>
     ///     <see href="https://github.com/prnshubn/neocortexapi-team-untitled">Project Link</see><br />
-    ///     <see href="https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled">Documentation</see>
+    ///     <see href="https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Team_Untitled_Files/Documentation">Documentation</see>
     ///     <br />
     ///     Demonstrates input reconstruction using Scalar Encoder, Spatial Pooler, and Classifiers (KNN and HTM).
     ///     This experiment showcases the process of encoding scalar inputs, training classifiers, and evaluating
@@ -617,7 +617,7 @@ namespace NeoCortexApi.Experiments
                 {
                     return Path.Combine(dir.FullName, "neocortexapi-team-untitled", 
                         "source", 
-                        "Documentation_Team_Untitled");
+                        "Team_Untitled_Files");
                 }
                 dir = dir.Parent;
             }

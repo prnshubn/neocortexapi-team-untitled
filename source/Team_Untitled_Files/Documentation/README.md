@@ -30,15 +30,16 @@ neocortexapi-team-untitled
 │   ├── UnitTestsProject/
 │   │   │── SpatialPoolerInputReconstructionExperimentTests.cs
 │   │   
-│   ├── Documentation_Team_Untitled/
+│   ├── Team_Untitled_Files/
 │   │   │── Media_Release_Forms/
 │   │   │   ├── # Contains the media release forms of the three contributors
 │   │   │
-│   │   ├── Project_Reports/
-│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Presentation.pptx
-│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.pdf
-│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Video.mp4
-│   │   │   ├── ML24/25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.docx
+│   │   ├── Documentation/
+│   │   │   ├── README.md
+│   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Presentation.pptx
+│   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.pdf
+│   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Video.mp4
+│   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.docx
 │   │   │   ├── Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png
 │   │   │
 │   │   ├── Generated_Output/
@@ -63,6 +64,11 @@ neocortexapi-team-untitled
 ## Introduction
 This experiment investigates the concept of input reconstruction using classifiers - HTM & KNN. The goal is to analyze how well HTM and KNN can reconstruct the original input based on Sparse Distributed Representations (SDRs) stabilized by Spatial Pooler (SP). The Spatial Learning experiment inspires this investigation and extends it by incorporating input reconstruction.
 
+## Methodology Flowchart
+
+<p align="left">
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Documentation/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
+
 # Methodology
 The experiment follows a structured pipeline starting with data encoding, SDR generation, classifier training, and input reconstruction. First, numerical input values are encoded using a Scalar Encoder, which transforms continuous values into binary representations. These encoded values are then passed through the Spatial Pooler (SP), which learns stable patterns and generates stable and robust SDRs. The Spatial Pooler applies synaptic learning rules to form a structured representation of input data, which serves as the basis for reconstruction.
 
@@ -70,11 +76,6 @@ Once the SDRs are generated from the Spatial Pooler, both the classifiers — HT
 
 To evaluate classifier performance, the results are visualized through similarity graphs. These visualizations show the accuracy of HTM and KNN predictions in reconstructing inputs from SDRs. By comparing their performance, we gain insights into which classifier is more effective for input reconstruction. The findings contribute to a better understanding of classification-based reconstruction techniques and their potential for enhancing Sparse Distributed Representations in machine learning applications.
 
-## Methodology Flowchart
-
-<p align="left">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Documentation_Team_Untitled/Project_Reports/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
-  
 ## Difference between the classifiers
 
 - **HTM Classifier (Hierarchical Temporal Memory):** This classifier learns temporal patterns over time. It associates SDRs with input values and refines its predictions as more data is observed.

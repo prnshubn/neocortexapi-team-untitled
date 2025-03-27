@@ -1,0 +1,114 @@
+Hello NeocortexApi! Experiment SpatialPoolerInputReconstructionExperiment
+Cycle 0062 Stability: True
+Cycle 0063 Stability: True
+Cycle 0064 Stability: True
+Cycle 0065 Stability: True
+Cycle 0066 Stability: True
+
+Spatial Pooler Training Time: 13263 ms
+Classifier Training Complete
+Classifier Training Time: 53 ms
+
+----- Start of Test data reconstruction -----
+
+Input: 2.00
+KNN - Reconstructed Input: 1.00
+KNN - Internal Similarity: 0.00 %
+KNN - Percentage Similarity: 50.00 %
+HTM - Reconstructed Input: 9.00
+HTM - Internal Similarity: 0.00 %
+HTM - Percentage Similarity: 22.00 %
+Based on PercentageSimilarity - KNN performed better for this input
+
+Input: 8.00
+KNN - Reconstructed Input: 7.00
+KNN - Internal Similarity: 5.00 %
+KNN - Percentage Similarity: 88.00 %
+HTM - Reconstructed Input: 7.00
+HTM - Internal Similarity: 5.00 %
+HTM - Percentage Similarity: 88.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+----- End of Test data reconstruction -----
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Test_KNN_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Test_HTM_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Test_SimilarityPlot.png
+
+----- Start of Train data reconstruction -----
+
+Input: 9.00
+KNN - Reconstructed Input: 9.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 9.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 10.00
+KNN - Reconstructed Input: 10.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 10.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 6.00
+KNN - Reconstructed Input: 6.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 6.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 7.00
+KNN - Reconstructed Input: 7.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 7.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 5.00
+KNN - Reconstructed Input: 5.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 5.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 3.00
+KNN - Reconstructed Input: 3.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 3.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 4.00
+KNN - Reconstructed Input: 4.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 4.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+Input: 1.00
+KNN - Reconstructed Input: 1.00
+KNN - Internal Similarity: 100.00 %
+KNN - Percentage Similarity: 100.00 %
+HTM - Reconstructed Input: 1.00
+HTM - Internal Similarity: 100.00 %
+HTM - Percentage Similarity: 100.00 %
+Based on PercentageSimilarity - Both performed similar for this input
+
+----- End of Train data reconstruction -----
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Train_KNN_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Train_HTM_ReconstructionPlot.png
+Plot saved at: C:\Users\HP\source\repos\untitled\neocortexapi-team-untitled\source\Team_Untitled_Files\Generated_Plots\Train_SimilarityPlot.png
