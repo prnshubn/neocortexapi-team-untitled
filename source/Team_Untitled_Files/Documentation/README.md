@@ -16,7 +16,7 @@ Here we will describe our contribution to this project.
 
 - [SpatialPoolerInputReconstructionExperimentTests](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs): The Unit Tests for the experiment.
 
-- [Documentation](https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Documentation_Team_Untitled)
+- [Documentation](https://github.com/prnshubn/neocortexapi-team-untitled/tree/master/source/Team_Untitled_Files/Documentation)
 
 ### Project Folder Structure
 ```bash
