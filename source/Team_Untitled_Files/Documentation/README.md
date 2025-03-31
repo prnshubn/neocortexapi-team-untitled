@@ -6,10 +6,71 @@
 
 Here we will describe our contribution to this project.
 
-#### Instruction for running the experiment
-- Clone the Repository
-- Build the Project
-- Run the ExperimentRunner inside [SpatialPoolerInputReconstructionExperiment](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/NeoCortexApi.Experiments/SpatialPoolerInputReconstructionExperiment.cs)
+### Tools and Technology required
+The project leverages multiple tools and libraries to implement input encoding, SDR generation, classification, reconstruction, and visualization.
+
+#### Programming Language & Framework
+- **C# (.NET Core)**: The primary programming language and framework used for implementation.
+
+#### Machine Learning & HTM Libraries
+- **NeoCortexAPI**: A C# implementation of Hierarchical Temporal Memory (HTM) used for encoding, SDR generation, and classification.
+  - **GitHub Repo**: [neocortexapi](https://github.com/ddobric/neocortexapi)
+- **HTM Classifier**: A classification model within NeoCortexAPI, used for learning and predicting SDR-based patterns.
+- **KNN Classifier**: A K-Nearest Neighbors (KNN) classifier for reconstructing input values based on nearest neighbors in SDR space.
+
+#### Visualization Libraries
+
+- **ScottPlot (for .NET Core)**: A .NET-based library used for plotting similarity metrics and classifier performance.
+  - **Official Site**: [ScottPlot](https://scottplot.net/)
+- **Matplotlib (optional, for alternative visualization)**: Can be used via Python for additional graphical analysis.
+  - **Official Site**: [Matplotlib](https://matplotlib.org/)
+
+#### Development & Deployment Tools
+
+- **Visual Studio / JetBrains Rider**: Primary IDEs used for coding, debugging, and testing.
+- **Git / GitHub**: Version control and collaboration.
+- **Command Line / Terminal**: For running .NET applications and managing dependencies.
+
+#### Development Environment
+
+To ensure smooth implementation, the development environment includes specific dependencies, configurations, and setups.
+
+#### Required Software and Packages
+
+- **.NET Core SDK**: [Download .NET SDK](https://dotnet.microsoft.com/download/dotnet)
+- **NeoCortexAPI**: Installed via GitHub or NuGet package manager.
+- **ScottPlot (for visualization)**: Installed via NuGet:
+  ```sh
+  dotnet add package ScottPlot
+  ```
+
+## Other Dependencies
+
+- **System.Collections.Generic**: For data structures and result storage.
+- **System.Linq**: For dataset manipulation and transformations.
+- **NeoCortexApi.Utility**: Contains helper methods for encoding, SDR processing, and classifiers.
+
+# Environment Setup
+
+## Clone the GitHub Repository
+
+```sh
+git clone https://github.com/prnshubn/neocortexapi-team-untitled.git
+cd neocortexapi-team-untitled
+```
+
+## Install Required Dependencies
+
+```sh
+dotnet restore
+```
+
+## Build and Run the Project
+
+```sh
+dotnet build
+dotnet run
+```
 
 #### Our Code Contributions
 - [SpatialPoolerInputReconstructionExperiment](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/NeoCortexApi.Experiments/SpatialPoolerInputReconstructionExperiment.cs): The implementation of the Spatial Pooler Input Reconstruction Experiment.
@@ -64,7 +125,7 @@ neocortexapi-team-untitled
 ## Introduction
 This experiment investigates the concept of input reconstruction using classifiers - HTM & KNN. The goal is to analyze how well HTM and KNN can reconstruct the original input based on Sparse Distributed Representations (SDRs) stabilized by Spatial Pooler (SP). The Spatial Learning experiment inspires this investigation and extends it by incorporating input reconstruction.
 
-## Methodology Flowchart
+## Methodology Flow Diagram
 
 <p align="left">
   <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Documentation/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
@@ -72,7 +133,17 @@ This experiment investigates the concept of input reconstruction using classifie
 # Methodology
 The experiment follows a structured pipeline starting with data encoding, SDR generation, classifier training, and input reconstruction. First, numerical input values are encoded using a Scalar Encoder, which transforms continuous values into binary representations. These encoded values are then passed through the Spatial Pooler (SP), which learns stable patterns and generates stable and robust SDRs. The Spatial Pooler applies synaptic learning rules to form a structured representation of input data, which serves as the basis for reconstruction.
 
-Once the SDRs are generated from the Spatial Pooler, both the classifiers — HTM and KNN are trained to associate SDRs with their corresponding input values. The HTM Classifier learns temporal sequences, meaning it adapts over time to improve predictions, whereas the KNN Classifier memorizes SDRs and reconstructs inputs based on similarity to previously seen patterns. The classifiers are trained only on 80% of the input values, and the remaining 20% was used for testing. Before splitting, we randomized the input list so that there is no bias in the classifiers towards the lower values. During inference, classifiers attempt to predict the original input from the test SDRs. The reconstructed values are then compared with actual inputs using similarity metrics.
+To evaluate our classifiers effectively, we split the dataset into 80% for training and 20% for testing. Initially, training on the entire dataset resulted in perfect reconstruction, offering no insight into performance.
+
+Dividing the data serves two key purposes:
+
+- Following ML Best Practices – Training on 80% and testing on 20% ensures the model generalizes rather than memorizes patterns.
+
+- Testing Robustness – Real-world data is often imperfect. Training on one set of SDRs and testing on another helps assess how well classifiers handle slight variations.
+
+For further validation, we tested reconstruction using the training data itself—both classifiers performed flawlessly, confirming their effectiveness in ideal conditions.
+
+Our process: Encode the training subset into SDRs, train HTM and KNN classifiers, then reconstruct inputs using SDR-encoded test data. Comparing reconstructions to actual inputs reveals accuracy and real-world reliability.
 
 To evaluate classifier performance, the results are visualized through similarity graphs. These visualizations show the accuracy of HTM and KNN predictions in reconstructing inputs from SDRs. By comparing their performance, we gain insights into which classifier is more effective for input reconstruction. The findings contribute to a better understanding of classification-based reconstruction techniques and their potential for enhancing Sparse Distributed Representations in machine learning applications.
 
@@ -450,39 +521,32 @@ Calculates the Absolute Percentage Similarity between two values, returning a re
 
 ### [Case 1: Inputs 1 - 20](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Results_Case_1.xlsx)
 
-As we discussed before, we divide the input set into two subsets with 80:20 split. As the number of inputs is 20, the 80:20 split makes number of training data 16 and testing data 4. The below set of graphs represent the 20% data which was purely used for testing and was unseen to the classifiers. Hence the reconstructions are not perfect. We can also notice that the HTM Classifier performed better than the KNN Classifier.
+With 20 inputs, we allocated 16 for training and 4 for testing. The following graphs illustrate the performance on the test set, where reconstruction is imperfect, highlighting the challenge of unseen data. Notably, the HTM Classifier outperforms the KNN Classifier, showcasing better generalization.
 
-<p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_KNN_ReconstructionPlot.png" width="33%">
-</p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_HTM_ReconstructionPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_SimilarityPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_KNN_ReconstructionPlot.png" width="33%"> </p>
+The following graphs represent the training data reconstructions. Since the classifiers were trained on these inputs, reconstruction is perfect, achieving 100% similarity with no deviation.
 
-The below set of data is the rest 80% which was used to train the classifiers. Here we can notice that the reconstruction is perfect with no deviation and both the classifiers performed with 100% similarity.
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_SimilarityPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="33%"> </p>
 
-<p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="33%">
-</p>
 
 ### [Case 2: Inputs 1 - 50](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Results_Case_2.xlsx)
 
-For the second case, we took 50 inputs. With the 80:20 split, the number of training data is 40 and testing data is 10. The below set of graphs represent the 20% data which was purely used for testing and was unseen to the classifiers. Hence the reconstructions are not perfect. Here also the HTM Classifier performed much better than the KNN Classifier.
+For a broader evaluation, we increased the dataset size to 50 inputs, allocating 40 for training and 10 for testing. Similar to the first case, the test data remains unseen, and reconstruction is imperfect. Again, the HTM Classifier demonstrates superior performance compared to KNN in handling unseen inputs.
 
-<p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_KNN_ReconstructionPlot.png" width="33%">
-</p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_HTM_ReconstructionPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_SimilarityPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_KNN_ReconstructionPlot.png" width="33%"> </p>
+The training data reconstructions confirm that both classifiers achieve 100% similarity, reinforcing their effectiveness under ideal conditions.
 
-The below set of data is the rest 80% which was used to train the classifiers. In this case also we notice that the reconstruction is perfect with no deviation and both the classifiers performed perfectly.
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_HTM_ReconstructionPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_SimilarityPlot.png" width="33%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_KNN_ReconstructionPlot.png" width="33%"> </p>
 
-<p align="center">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_HTM_ReconstructionPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_SimilarityPlot.png" width="33%">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_KNN_ReconstructionPlot.png" width="33%">
-</p>
+### Key Observations
+
+- HTM consistently outperforms KNN in reconstructing unseen test data, proving more robust to variations.
+
+- Both classifiers achieve perfect reconstruction on the training set, validating their effectiveness under ideal conditions.
+
+- Scaling up from 20 to 50 inputs maintains the same performance trends, reinforcing the reliability of our evaluation approach.
+
+This analysis confirms that while both classifiers function well with known data, HTM exhibits better generalization when handling unseen inputs.
 
 ## Unit Tests - [SpatialPoolerInputReconstructionExperimentTests](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs)
 We tested with 5 test cases, and all passed successfully. These tests validate the correct execution of the Spatial Pooler training, input reconstruction, and classifier accuracy.
@@ -503,9 +567,7 @@ We tested with 5 test cases, and all passed successfully. These tests validate t
 - **Test Category:** ClassifierPrediction
 - **Description:** Verifies that the HTM and KNN classifiers successfully predict reconstructed inputs. Ensures that the console output contains predictions from both classifiers and similarity percentages.
 
-### [Test_ReconstructionPart_Results_Have_Valid_Similarity](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs#L128-L138)
+### [Test_ReconstructionPart_Results_Have_Valid_Similarity](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs#L129-L139)
 - **Test Category:** ReconstructionAccuracy
-- **Description:** Validates that similarity scores between reconstructed and actual inputs fall within the valid range (0% - 100%). Ensures that both HTM and KNN classifiers return meaningful predictions.
-
-
-
+- **Description:** Validates that similarity scores between reconstructed and actual inputs fall within the valid range (0% - 100%). Ensures that both HTM and KNN classifiers return meaningful predictions. Point to be notes here is that in the actual test case, we check that similarity is between 0 and 1 because this value is directly converted to percentage in the console itself using formatter.
+- 
