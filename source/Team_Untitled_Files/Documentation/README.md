@@ -570,4 +570,3 @@ We tested with 5 test cases, and all passed successfully. These tests validate t
 ### [Test_ReconstructionPart_Results_Have_Valid_Similarity](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/UnitTestsProject/SpatialPoolerInputReconstructionExperimentTests.cs#L129-L139)
 - **Test Category:** ReconstructionAccuracy
 - **Description:** Validates that similarity scores between reconstructed and actual inputs fall within the valid range (0% - 100%). Ensures that both HTM and KNN classifiers return meaningful predictions. Point to be notes here is that in the actual test case, we check that similarity is between 0 and 1 because this value is directly converted to percentage in the console itself using formatter.
-- 
