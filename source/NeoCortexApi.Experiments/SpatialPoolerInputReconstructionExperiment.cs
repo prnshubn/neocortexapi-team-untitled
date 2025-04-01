@@ -462,7 +462,7 @@ namespace NeoCortexApi.Experiments
         /// </summary>
         /// <param name="value1">First value</param>
         /// <param name="value2">Second value</param>
-        /// <returns>Calculates the Percentage Similarity between the given vales and returns the result between 0 -1</returns>
+        /// <returns>Calculates the Percentage Similarity between the given vales and returns the result between 0 - 1</returns>
         private double CalculatePercentageSimilarity(double value1, double value2)
         {
             double difference = Math.Abs(value1 - value2);
