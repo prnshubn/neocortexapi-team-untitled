@@ -92,6 +92,8 @@ neocortexapi-team-untitled
 │   │   │── SpatialPoolerInputReconstructionExperimentTests.cs
 │   │   
 │   ├── Team_Untitled_Files/
+│   │   │── Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png
+│   │   │
 │   │   │── Media_Release_Forms/
 │   │   │   ├── # Contains the media release forms of the three contributors
 │   │   │
@@ -101,7 +103,6 @@ neocortexapi-team-untitled
 │   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.pdf
 │   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Video.mp4
 │   │   │   ├── ML24-25_02_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled-Paper.docx
-│   │   │   ├── Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png
 │   │   │
 │   │   ├── Generated_Output/
 │   │   │   ├── # This folder stores the generated Output.txt file everytime when the experiment runs
@@ -128,7 +129,7 @@ This experiment investigates the concept of input reconstruction using classifie
 ## Methodology Flow Diagram
 
 <p align="left">
-  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Documentation/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
+  <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Flowchart_Investigate_Input_Reconstruction_by_using_Classifiers_Team_Untitled.png"> </p>
 
 # Methodology
 The experiment follows a structured pipeline starting with data encoding, SDR generation, classifier training, and input reconstruction. First, numerical input values are encoded using a Scalar Encoder, which transforms continuous values into binary representations. These encoded values are then passed through the Spatial Pooler (SP), which learns stable patterns and generates stable and robust SDRs. The Spatial Pooler applies synaptic learning rules to form a structured representation of input data, which serves as the basis for reconstruction.
