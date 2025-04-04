@@ -533,23 +533,23 @@ The following graphs represent the reconstruction of the training data. Since th
 <p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="45%"> </p>
 The following graphs show the similarities in the reconstruction of the training data, using the same two metrics as before: Percentage Similarity and Internal Similarity.
 
-<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_PercentageSimilarityPlot.png" width="45%"> </p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_InternalSimilarityPlot.png" width="45%"> </p>
 
 
 ### [Case 2: Inputs 1 - 50](https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Results_Case_2.xlsx)
 
 In this broader evaluation, we increased the dataset size to 50 inputs, allocating 40 for training and 10 for testing. Similar to the first case, the test data remains unseen, and reconstruction is imperfect. However, for the training data, reconstruction is perfect with 100% similarity in both metrics.
 
-<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_HTM_ReconstructionPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_KNN_ReconstructionPlot.png" width="45%"> </p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_HTM_ReconstructionPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_KNN_ReconstructionPlot.png" width="45%"> </p>
 The following graphs illustrate the reconstruction similarities for the testing data, using the Percentage Similarity and Internal Similarity metrics.
 
-<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Test_InternalSimilarityPlot.png" width="45%"> </p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Test_InternalSimilarityPlot.png" width="45%"> </p>
 The following graphs represent the reconstruction of the training data, with perfect similarity for both classifiers, as the models were trained on this data. HTM is depicted in red, while KNN is depicted in blue.
 
-<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_HTM_ReconstructionPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_KNN_ReconstructionPlot.png" width="45%"> </p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_HTM_ReconstructionPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_KNN_ReconstructionPlot.png" width="45%"> </p>
 The following graphs depict the similarities in the reconstruction of the training data, using the Percentage Similarity and Internal Similarity metrics.
 
-<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_1/Train_PercentageSimilarityPlot.png" width="45%"> </p>
+<p align="center"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_PercentageSimilarityPlot.png" width="45%"> <img src="https://github.com/prnshubn/neocortexapi-team-untitled/blob/master/source/Team_Untitled_Files/Result_Case_2/Train_InternalSimilarityPlot.png" width="45%"> </p>
 
 
 ### Key Observations
