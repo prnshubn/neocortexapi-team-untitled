@@ -518,8 +518,8 @@ namespace NeoCortexApi.Experiments
         }
 
         /// <summary>
-        ///     Plots the similarity results by creating Line plots comparing similarities
-        ///     of reconstructed inputs with original inputs from both KNN and HTM classifiers.
+        ///     Plots both the similarity metrics by creating Line plots.
+        ///     Comparing similarities of both numeric values and SDRs.
         /// </summary>
         private void PlotSimilarityResults(Dictionary<double, (double KnnReconstructedInput,
             double HtmReconstructedInput,
@@ -528,12 +528,14 @@ namespace NeoCortexApi.Experiments
             double KnnPercentageSimilarity,
             double HtmPercentageSimilarity)> results, double max, string datasetType, string path)
         {
-            Plot plot = new();
+            
+            Plot percentageSimilarityPlot = new();
+            Plot internalSimilarityPlot = new();
 
-            // Plotting the KNN Similarities
+            // Plotting the KNN Percentage Similarities
             results.ToList().ForEach(kvp =>
             {
-                LinePlot line = plot.Add.Line(
+                LinePlot line = percentageSimilarityPlot.Add.Line(
                     kvp.Key - 0.05,
                     x2: kvp.Key - 0.05,
                     y1: 0,
@@ -542,11 +544,24 @@ namespace NeoCortexApi.Experiments
                 line.Color = Colors.Blue;
                 line.LineWidth = 3;
             });
-
-            // Plotting the HTM Similarities
+            
+            // Plotting the KNN Internal Similarities
             results.ToList().ForEach(kvp =>
             {
-                LinePlot line = plot.Add.Line(
+                LinePlot line = internalSimilarityPlot.Add.Line(
+                    kvp.Key - 0.05,
+                    x2: kvp.Key - 0.05,
+                    y1: 0,
+                    y2: kvp.Value.KnnInternalSimilarity * 100
+                );
+                line.Color = Colors.Blue;
+                line.LineWidth = 3;
+            });
+
+            // Plotting the HTM Percentage Similarities
+            results.ToList().ForEach(kvp =>
+            {
+                LinePlot line = percentageSimilarityPlot.Add.Line(
                     kvp.Key + 0.05,
                     x2: kvp.Key + 0.05,
                     y1: 0,
@@ -555,24 +570,52 @@ namespace NeoCortexApi.Experiments
                 line.Color = Colors.Red;
                 line.LineWidth = 3;
             });
+            
+            // Plotting the HTM Internal Similarities
+            results.ToList().ForEach(kvp =>
+            {
+                LinePlot line = internalSimilarityPlot.Add.Line(
+                    kvp.Key + 0.05,
+                    x2: kvp.Key + 0.05,
+                    y1: 0,
+                    y2: kvp.Value.HtmInternalSimilarity * 100
+                );
+                line.Color = Colors.Red;
+                line.LineWidth = 3;
+            });
 
             // Dummy Line to add Legend
-            LinePlot knnLegend = plot.Add.Line(0, 0, 0, 0);
-            knnLegend.Color = Colors.Blue;
-            knnLegend.LegendText = "KNN Similarities";
+            LinePlot knnLegend1 = percentageSimilarityPlot.Add.Line(0, 0, 0, 0);
+            knnLegend1.Color = Colors.Blue;
+            knnLegend1.LegendText = "KNN Similarities";
+            
+            LinePlot knnLegend2 = internalSimilarityPlot.Add.Line(0, 0, 0, 0);
+            knnLegend2.Color = Colors.Blue;
+            knnLegend2.LegendText = "KNN Similarities";
 
             // Dummy Line to add Legend
-            LinePlot htmLegend = plot.Add.Line(0, 0, 0, 0);
-            htmLegend.Color = Colors.Red;
-            htmLegend.LegendText = "HTM Similarities";
+            LinePlot htmLegend1 = percentageSimilarityPlot.Add.Line(0, 0, 0, 0);
+            htmLegend1.Color = Colors.Red;
+            htmLegend1.LegendText = "HTM Similarities";
+            
+            LinePlot htmLegend2 = internalSimilarityPlot.Add.Line(0, 0, 0, 0);
+            htmLegend2.Color = Colors.Red;
+            htmLegend2.LegendText = "HTM Similarities";
 
-            plot.Legend.Alignment = Alignment.UpperLeft;
-            plot.Title(datasetType + " - Similarity Comparison");
-            plot.XLabel("Input Values");
-            plot.YLabel("Similarity (%)");
-            plot.Axes.SetLimits(0, max+1, 0, 105);
+            percentageSimilarityPlot.Legend.Alignment = Alignment.UpperLeft;
+            percentageSimilarityPlot.Title(datasetType + " - Percentage Similarity Comparison");
+            percentageSimilarityPlot.XLabel("Input Values");
+            percentageSimilarityPlot.YLabel("Similarity (%)");
+            percentageSimilarityPlot.Axes.SetLimits(0, max+1, 0, 105);
+            
+            internalSimilarityPlot.Legend.Alignment = Alignment.UpperLeft;
+            internalSimilarityPlot.Title(datasetType + " - Internal Similarity Comparison");
+            internalSimilarityPlot.XLabel("Input Values");
+            internalSimilarityPlot.YLabel("Similarity (%)");
+            internalSimilarityPlot.Axes.SetLimits(0, max+1, 0, 105);
 
-            this.SavePlot(plot, datasetType + "_SimilarityPlot.png", max, path);
+            this.SavePlot(percentageSimilarityPlot, datasetType + "_PercentageSimilarityPlot.png", max, path);
+            this.SavePlot(internalSimilarityPlot, datasetType + "_InternalSimilarityPlot.png", max, path);
         }
 
         /// <summary>
